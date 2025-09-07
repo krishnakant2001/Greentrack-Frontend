@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import {
   FormControl,
   IconButton,
@@ -10,7 +10,23 @@ import React, { useState } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const PasswordField = () => {
+interface PasswordFieldProps {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  label?: string;
+  required?: boolean;
+  fullWidth?: boolean;
+  id?: string;
+}
+
+const PasswordField: React.FC<PasswordFieldProps> = ({
+  value,
+  onChange,
+  label = "Password",
+  required = true,
+  fullWidth = true,
+  id = "outlined-adornment-password",
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -27,11 +43,13 @@ const PasswordField = () => {
     event.preventDefault();
   };
   return (
-    <FormControl required variant="outlined">
+    <FormControl required={required} variant="outlined" fullWidth={fullWidth}>
       <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
       <OutlinedInput
-        id="outlined-adornment-password"
+        id={id}
         type={showPassword ? "text" : "password"}
+        value={value}
+        onChange={onChange}
         endAdornment={
           <InputAdornment position="end">
             <IconButton
@@ -47,7 +65,7 @@ const PasswordField = () => {
             </IconButton>
           </InputAdornment>
         }
-        label="Password"
+        label={label}
       />
     </FormControl>
   );

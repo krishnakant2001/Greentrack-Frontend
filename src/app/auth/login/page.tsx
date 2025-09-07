@@ -1,19 +1,54 @@
-import { Button, Checkbox, Divider, FormControlLabel, TextField } from '@mui/material'
-import React from 'react'
-import { Container, ForgotPassword, OAuth, Separator, Title, Wrapper } from '../auth.styles';
-import Link from 'next/link';
-import PasswordField from '@/components/reusableComponents/PasswordField';
+'use client'
+import {
+  Button,
+  Divider,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React, { useState } from "react";
+import {
+  Container,
+  Disclaimer,
+  ForgotPassword,
+  OAuth,
+  Section,
+  Separator,
+  StyledLink,
+  Title,
+  Wrapper,
+} from "../auth.styles";
+import PasswordField from "@/components/reusableComponents/PasswordField";
 
-import { FcGoogle } from 'react-icons/fc';
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
+
+  const [email, setEmail] = useState('');
+  const [pswd, setPswd] = useState('');
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  const handlePswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPswd(event.target.value);
+  };
+
+  const handleClearClicked = () => {
+    setEmail('');
+    setPswd('');
+  }
+
   return (
     <Container>
       <Wrapper>
         <Title>Login</Title>
-        <div>
-          Don&apos;t have an account? <Link href="/auth/register">Register</Link>
-        </div>
+        <Section>
+          Don&apos;t have an account?{" "}
+          <StyledLink href="/auth/register">Register</StyledLink>
+        </Section>
+
         <TextField
           fullWidth
           required
@@ -21,23 +56,23 @@ const Login = () => {
           id="outlined-basic"
           label="Email"
           variant="outlined"
+          value={email}
+          onChange={handleEmailChange}
         />
-        <PasswordField />
+        <PasswordField value={pswd} onChange={handlePswdChange} />
+
         <ForgotPassword>
-          <Link href="/auth/forgot-password">Forgot password?</Link>
+          <StyledLink href="/auth/forgot-password">Forgot password?</StyledLink>
         </ForgotPassword>
-        <FormControlLabel
-          required
-          control={<Checkbox />}
-          label="Accept our Terms and conditions"
-        />
 
         <Button fullWidth variant="contained">
           Login
         </Button>
-        <Button fullWidth variant="outlined">
-          Reset
+
+        <Button fullWidth variant="outlined" onClick={handleClearClicked}>
+          Clear
         </Button>
+
         <Separator>
           <Divider>or</Divider>
         </Separator>
@@ -47,9 +82,22 @@ const Login = () => {
             <FcGoogle size={"32px"} /> &nbsp; Continue with Google
           </Button>
         </OAuth>
+
+        <Disclaimer>
+          <Typography variant="body2">
+            By creating this account, you agree to our{" "}
+            <Link
+              component={StyledLink}
+              href={"/auth/terms-and-conditions"}
+              target="_blank"
+            >
+              Terms and Conditions
+            </Link>{" "}
+          </Typography>
+        </Disclaimer>
       </Wrapper>
     </Container>
   );
-}
+};
 
-export default Login
+export default Login;

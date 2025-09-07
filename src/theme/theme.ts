@@ -98,6 +98,24 @@ const theme = createTheme({
         },
       },
     },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          "&::before, &::after": {
+            borderColor: "#D0E8C5", // Pale green lines
+            borderWidth: "2px",
+          },
+        },
+        wrapper: {
+          color: "#27667B", // Deep teal text
+          fontSize: "1 rem",
+          fontWeight: 300,
+          paddingLeft: 16,
+          paddingRight: 16,
+          letterSpacing: "0.5px",
+        },
+      },
+    },
   },
 });
 
