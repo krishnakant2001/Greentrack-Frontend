@@ -38,6 +38,9 @@ const theme = createTheme({
         root: {
           textTransform: "none",
           fontWeight: 500,
+          fontSize: 16,
+          paddingTop: 8,
+          paddingBottom: 8,
         },
         containedPrimary: {
           backgroundColor: "#27667B",
@@ -57,20 +60,30 @@ const theme = createTheme({
         variant: "contained",
       },
     },
-    MuiInput: {
+    MuiInputAdornment: {
       styleOverrides: {
-        input: {
-          color: "#27667B",
-        },
         root: {
-          "&:before": {
-            borderBottomColor: "#27667B", // default underline
+          "& .MuiIconButton-root": {
+            color: "#27667B", // Deep teal for visibility icons
+            "&:hover": {
+              backgroundColor: "rgba(39, 102, 123, 0.1)",
+              color: "#143D60", // Darker teal on hover
+            },
           },
-          "&:hover:not(.Mui-disabled):before": {
-            borderBottomColor: "#143D60", // hover underline
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#27667B",
           },
-          "&:after": {
-            borderBottomColor: "#143D60", // focused underline
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#143D60",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#27667B",
           },
         },
       },
@@ -79,6 +92,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           color: "#143D60",
+          "&.Mui-focused": {
+            color: "#143D60",
+          },
         },
       },
     },
