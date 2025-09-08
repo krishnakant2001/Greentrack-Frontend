@@ -79,12 +79,6 @@ const theme = createTheme({
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: "#27667B",
           },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#143D60",
-          },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#27667B",
-          },
         },
       },
     },
@@ -94,6 +88,9 @@ const theme = createTheme({
           color: "#143D60",
           "&.Mui-focused": {
             color: "#143D60",
+            "& .MuiInputLabel-asterisk": {
+              color: "#143D60",
+            },
           },
         },
       },

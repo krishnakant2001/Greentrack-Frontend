@@ -1,6 +1,7 @@
-'use client'
+"use client";
 import {
   FormControl,
+  FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -17,6 +18,7 @@ interface PasswordFieldProps {
   required?: boolean;
   fullWidth?: boolean;
   id?: string;
+  error?: string;
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
@@ -26,6 +28,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   required = true,
   fullWidth = true,
   id = "outlined-adornment-password",
+  error,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,12 +47,15 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   };
   return (
     <FormControl required={required} variant="outlined" fullWidth={fullWidth}>
-      <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+      <InputLabel htmlFor="outlined-adornment-password" error={!!error}>
+        Password
+      </InputLabel>
       <OutlinedInput
         id={id}
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={onChange}
+        error={!!error}
         endAdornment={
           <InputAdornment position="end">
             <IconButton
@@ -67,6 +73,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
         }
         label={label}
       />
+      <FormHelperText error={!!error}>{error}</FormHelperText>
     </FormControl>
   );
 };
