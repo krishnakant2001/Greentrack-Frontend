@@ -35,7 +35,15 @@ export const OAuth = styled.div`
 `;
 
 export const Separator = styled.div``;
-export const Fullname = styled.div``;
+export const TextSection = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+export const ButtonSection = styled.div`
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+`;
 
 export const ForgotPassword = styled.div`
   text-align: end;

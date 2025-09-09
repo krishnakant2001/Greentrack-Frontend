@@ -48,7 +48,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   return (
     <FormControl required={required} variant="outlined" fullWidth={fullWidth}>
       <InputLabel htmlFor="outlined-adornment-password" error={!!error}>
-        Password
+        {label}
       </InputLabel>
       <OutlinedInput
         id={id}

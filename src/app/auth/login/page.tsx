@@ -98,8 +98,9 @@ const Login = () => {
           <TextField
             fullWidth
             required
-            id="outlined-basic"
+            id="email"
             label="Email"
+            type="email"
             variant="outlined"
             value={email}
             onChange={handleEmailChange}
@@ -107,6 +108,7 @@ const Login = () => {
             helperText={emailError}
           />
           <PasswordField
+            id="password"
             value={pswd}
             onChange={handlePswdChange}
             error={pswdError}
