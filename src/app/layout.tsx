@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Nunito } from "next/font/google";
 import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry";
+import { StyledEngineProvider } from "@mui/material";
+import StyledComponentsRegistry from "./StyledComponentRegistry";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${nunito.variable}`}>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <StyledEngineProvider injectFirst>
+          <StyledComponentsRegistry>
+            <ThemeRegistry>{children}</ThemeRegistry>
+          </StyledComponentsRegistry>
+        </StyledEngineProvider>
       </body>
     </html>
   );
