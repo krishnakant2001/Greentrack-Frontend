@@ -10,8 +10,12 @@ import {
   Wrapper,
 } from "../auth.styles";
 import { Button, Link, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const ForgotPassword = () => {
+
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
@@ -35,6 +39,7 @@ const ForgotPassword = () => {
     } else {
       // Proceed with form submission
       console.log("Form submitted with email:", email);
+      router.push("/auth/otp");
     }
   };
 

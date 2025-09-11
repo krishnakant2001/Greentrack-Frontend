@@ -45,9 +45,14 @@ export const ButtonSection = styled.div`
   justify-content: space-between;
 `;
 
-export const ForgotPassword = styled.div`
+export const LinkSection = styled.div`
   text-align: end;
   margin-bottom: 16px;
+`;
+
+export const OtpCounter = styled.div`
+  color: #00000099;
+  font-weight: 300;
 `;
 
 export const Disclaimer = styled.div`
@@ -61,7 +66,7 @@ export const StyledLink = styled(Link)(() => ({
   textDecoration: "none",
   fontWeight: 300,
   "&:hover": {
-    color: "#143D60",
+    color: "#0d2539",
     textDecoration: "underline",
   },
 }));

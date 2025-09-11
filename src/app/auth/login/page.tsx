@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import {
   Container,
   Disclaimer,
-  ForgotPassword,
   FormSection,
+  LinkSection,
   OAuth,
   Section,
   Separator,
@@ -114,11 +114,11 @@ const Login = () => {
             error={pswdError}
           />
 
-          <ForgotPassword>
+          <LinkSection>
             <StyledLink href="/auth/forgot-password">
               Forgot password?
             </StyledLink>
-          </ForgotPassword>
+          </LinkSection>
 
           <Button type="submit" fullWidth variant="contained">
             Login
