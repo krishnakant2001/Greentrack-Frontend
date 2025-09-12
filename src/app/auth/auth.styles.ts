@@ -61,6 +61,7 @@ export const Disclaimer = styled.div`
   align-items: center;
   margin-top: 16px;
 `;
+
 export const StyledLink = styled(Link)(() => ({
   color: "#143D60",
   textDecoration: "none",
@@ -70,3 +71,29 @@ export const StyledLink = styled(Link)(() => ({
     textDecoration: "underline",
   },
 }));
+
+export const TermsAndConditionsContent = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: justify;
+  align-items: center;
+  gap: 16px;
+  overflow-y: auto;
+  padding: 24px;
+`;
+
+export const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+  color: #0d2539;
+`;
+
+export const Paragraph = styled.p`
+  text-align: justify;
+`;
