@@ -1,5 +1,5 @@
 "use client";
-import { Button, Divider, Link, TextField, Typography } from "@mui/material";
+import { Alert, Button, Divider, Link, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import {
   Container,
@@ -16,27 +16,27 @@ import {
 import PasswordField from "@/components/reusableComponents/PasswordField";
 
 import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
+import { loginUser } from "@/services/authService";
+import { validateEmail, validatePswd } from "@/utils/validations";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [pswd, setPswd] = useState("");
   const [emailError, setEmailError] = useState("");
   const [pswdError, setPswdError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(value);
-  };
-
-  const validatePswd = (value: string) => {
-    return value.length >= 6;
-  };
+  const router = useRouter();
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
     if (validateEmail(event.target.value)) {
       setEmailError("");
     }
+    if (apiError) setApiError("");
   };
 
   const handlePswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +44,7 @@ const Login = () => {
     if (validatePswd(event.target.value)) {
       setPswdError("");
     }
+     if (apiError) setApiError("");
   };
 
   const checkValidCredentials = () => {
@@ -62,7 +63,7 @@ const Login = () => {
     return valid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (email === "") {
@@ -73,9 +74,60 @@ const Login = () => {
     }
 
     if (checkValidCredentials()) {
-      // handle form submission logic here
-      console.log("Email:", email);
-      console.log("Password:", pswd);
+      // Start loading
+      setIsLoading(true);
+
+      try {
+        // Call login API
+        const response = await loginUser(email, pswd);
+        console.log("Login response:", response);
+
+        // Success handling
+        setSuccessMessage("Login successful! Redirecting...");
+
+        // Store token in localStorage (or use a more secure method)
+        if (response.token) {
+          localStorage.setItem("authToken", response.token);
+          // Store user data if needed
+          if (response.user) {
+            localStorage.setItem("user", JSON.stringify(response.user));
+          }
+        }
+
+        // Redirect to dashboard or home page after a short delay
+        setTimeout(() => {
+          router.push("/dashboard"); // Adjust the route as needed
+        }, 1500);
+      } catch (error: unknown) {
+        // Error handling
+        console.error("Login error:", error);
+
+        let errorMessage = "An unexpected error occurred. Please try again.";
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "message" in error &&
+          typeof (error as { message: string }).message === "string"
+        ) {
+          const message = (error as { message: string }).message;
+          if (message.includes("401")) {
+            errorMessage = "Invalid email or password. Please try again.";
+          } else if (message.includes("404")) {
+            errorMessage = "User not found. Please check your email address.";
+          } else if (message.includes("500")) {
+            errorMessage = "Server error. Please try again later.";
+          } else if (message.includes("Failed to fetch")) {
+            errorMessage =
+              "Network error. Please check your internet connection.";
+          } else {
+            errorMessage = message;
+          }
+        }
+        setApiError(errorMessage);
+      } finally {
+        // Stop loading
+        setIsLoading(false);
+      }
     }
   };
 
@@ -84,6 +136,7 @@ const Login = () => {
     setPswd("");
     setEmailError("");
     setPswdError("");
+    setApiError("");
   };
 
   return (
@@ -94,6 +147,19 @@ const Login = () => {
           Don&apos;t have an account?{" "}
           <StyledLink href="/auth/register">Register</StyledLink>
         </Section>
+        {/* Success Message */}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+
+        {/* Error Message */}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
         <FormSection onSubmit={handleSubmit} noValidate>
           <TextField
             fullWidth
@@ -120,8 +186,13 @@ const Login = () => {
             </StyledLink>
           </LinkSection>
 
-          <Button type="submit" fullWidth variant="contained">
-            Login
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={isLoading}
+          >
+            {isLoading ? "Logging in..." : "Login"}
           </Button>
 
           <Button fullWidth variant="outlined" onClick={handleClearClicked}>
