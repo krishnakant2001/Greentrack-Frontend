@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import styled from "styled-components";
+import logoutBackground from "@/assets/Planting.jpg";
 
 export const Container = styled.div`
   height: 100vh;
@@ -96,4 +97,31 @@ export const Content = styled.div`
 
 export const Paragraph = styled.p`
   text-align: justify;
+`;
+
+
+//logout page styles
+export const ContentSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 4;
+`;
+
+export const ImageSection = styled.div`
+  height: 100vh;
+  flex: 5;
+  background-image: url("${logoutBackground.src}");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const SubTitle = styled.h3`
+  font-weight: 400;
+  color: #143d60;
+  margin-bottom: 1rem;
 `;
