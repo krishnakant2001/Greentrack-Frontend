@@ -11,9 +11,18 @@ import {
   Title,
   Wrapper,
 } from "../auth.styles";
-import { Button, Link, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Link,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
 import PasswordField from "@/components/reusableComponents/PasswordField";
 import { useRouter } from "next/navigation";
+import InputSelectField from "@/components/reusableComponents/InputSelectField";
+import { validateEmail, validatePswd } from "@/utils/validations";
+import { regionData } from "@/data/regionData";
 
 const Register = () => {
   
@@ -25,12 +34,17 @@ const Register = () => {
   const [pswd, setPswd] = useState("");
   const [confirmPswd, setConfirmPswd] = useState("");
   const [region, setRegion] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [pswdError, setPswdError] = useState("");
   const [confirmPswdError, setConfirmPswdError] = useState("");
+  const [regionError, setRegionError] = useState("");
 
   const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFirstName(event.target.value);
+    if (event.target.value !== "") {
+      setFirstNameError("");
+    }
   };
 
   const handleLastNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +63,7 @@ const Register = () => {
     if (validatePswd(event.target.value)) {
       setPswdError("");
     }
-    if(confirmPswd === event.target.value){
+    if (confirmPswd === event.target.value) {
       setConfirmPswdError("");
     }
   };
@@ -58,23 +72,19 @@ const Register = () => {
     setConfirmPswd(event.target.value);
     if (event.target.value === pswd) {
       setConfirmPswdError("");
-    }
-    else{
+    } else {
       setConfirmPswdError("Passwords do not match.");
     }
   };
 
-  const handleRegionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRegion(event.target.value);
-  };
-
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(value);
-  };
-
-  const validatePswd = (value: string) => {
-    return value.length >= 6;
+  const handleRegionChange = (event: SelectChangeEvent) => {
+    const selectedRegion = event.target.value;
+    setRegion(selectedRegion);
+    if (selectedRegion) {
+      setRegionError("");
+    } else {
+      setRegionError("Please select a region.");
+    }
   };
 
   const checkValidCredentials = () => {
@@ -93,9 +103,12 @@ const Register = () => {
     return valid;
   };
 
- const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (firstName === "") {
+      setFirstNameError("Please enter your first name.");
+    }
     if (email === "") {
       setEmailError("Please enter a valid email address.");
     }
@@ -105,8 +118,11 @@ const Register = () => {
     if (confirmPswd === "" || confirmPswd !== pswd) {
       setConfirmPswdError("Passwords do not match.");
     }
+    if (region === "") {
+      setRegionError("Please select a region.");
+    }
 
-    if (checkValidCredentials() && (confirmPswd === pswd)) {
+    if (checkValidCredentials() && confirmPswd === pswd) {
       // handle form submission logic here
       console.log("First Name:", firstName);
       console.log("Last Name:", lastName);
@@ -114,10 +130,10 @@ const Register = () => {
       console.log("Password:", pswd);
       console.log("Region:", region);
     }
-  }
+  };
 
   const handleCancelClicked = () => {
-    router.push('/'); // Navigate to the home page
+    router.push("/"); // Navigate to the home page
   };
 
   return (
@@ -138,6 +154,8 @@ const Register = () => {
               variant="outlined"
               value={firstName}
               onChange={handleFirstNameChange}
+              error={!!firstNameError}
+              helperText={firstNameError}
             />
             <TextField
               fullWidth
@@ -173,13 +191,14 @@ const Register = () => {
             onChange={handleConfirmPswdChange}
             error={confirmPswdError}
           />
-          <TextField
+          <InputSelectField
             required
             id="region"
             label="Region"
-            variant="outlined"
             value={region}
             onChange={handleRegionChange}
+            error={regionError}
+            options={regionData}
           />
           <ButtonSection>
             <Button variant="outlined" onClick={handleCancelClicked}>
