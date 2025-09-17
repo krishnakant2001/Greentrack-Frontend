@@ -12,6 +12,7 @@ import {
   Wrapper,
 } from "../auth.styles";
 import {
+  Alert,
   Button,
   Link,
   SelectChangeEvent,
@@ -23,54 +24,64 @@ import { useRouter } from "next/navigation";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { validateEmail, validatePswd } from "@/utils/validations";
 import { regionData } from "@/data/regionData";
+import { registerUser } from "@/services/authService";
 
 const Register = () => {
-  
+
   const router = useRouter();
-  
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [pswd, setPswd] = useState("");
-  const [confirmPswd, setConfirmPswd] = useState("");
-  const [region, setRegion] = useState("");
+
+  const [fields, setFields] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    pswd: "",
+    confirmPswd: "",
+    region: "",
+  });
+
   const [firstNameError, setFirstNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [pswdError, setPswdError] = useState("");
   const [confirmPswdError, setConfirmPswdError] = useState("");
   const [regionError, setRegionError] = useState("");
 
-  const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFirstName(event.target.value);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleFirstNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFields({ ...fields, firstName: event.target.value });
     if (event.target.value !== "") {
       setFirstNameError("");
     }
   };
 
   const handleLastNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLastName(event.target.value);
+    setFields({ ...fields, lastName: event.target.value });
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+    setFields({ ...fields, email: event.target.value });
     if (validateEmail(event.target.value)) {
       setEmailError("");
     }
   };
 
   const handlePswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPswd(event.target.value);
+    setFields({ ...fields, pswd: event.target.value });
     if (validatePswd(event.target.value)) {
       setPswdError("");
     }
-    if (confirmPswd === event.target.value) {
+    if (fields.confirmPswd === event.target.value) {
       setConfirmPswdError("");
     }
   };
 
   const handleConfirmPswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmPswd(event.target.value);
-    if (event.target.value === pswd) {
+    setFields({ ...fields, confirmPswd: event.target.value });
+    if (event.target.value === fields.pswd) {
       setConfirmPswdError("");
     } else {
       setConfirmPswdError("Passwords do not match.");
@@ -79,7 +90,7 @@ const Register = () => {
 
   const handleRegionChange = (event: SelectChangeEvent) => {
     const selectedRegion = event.target.value;
-    setRegion(selectedRegion);
+    setFields({ ...fields, region: selectedRegion });
     if (selectedRegion) {
       setRegionError("");
     } else {
@@ -90,12 +101,12 @@ const Register = () => {
   const checkValidCredentials = () => {
     let valid = true;
 
-    if (!validateEmail(email)) {
+    if (!validateEmail(fields.email)) {
       setEmailError("Please enter a valid email address.");
       valid = false;
     }
 
-    if (!validatePswd(pswd)) {
+    if (!validatePswd(fields.pswd)) {
       setPswdError("Password must have 6 characters.");
       valid = false;
     }
@@ -103,32 +114,73 @@ const Register = () => {
     return valid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (firstName === "") {
+    if (!fields.firstName) {
       setFirstNameError("Please enter your first name.");
     }
-    if (email === "") {
+    if (!fields.email) {
       setEmailError("Please enter a valid email address.");
     }
-    if (pswd === "") {
+    if (!fields.pswd) {
       setPswdError("Password must have 6 characters.");
     }
-    if (confirmPswd === "" || confirmPswd !== pswd) {
+    if (fields.confirmPswd === "" || fields.confirmPswd !== fields.pswd) {
       setConfirmPswdError("Passwords do not match.");
     }
-    if (region === "") {
+    if (!fields.region) {
       setRegionError("Please select a region.");
     }
 
-    if (checkValidCredentials() && confirmPswd === pswd) {
+    if (checkValidCredentials() && fields.confirmPswd === fields.pswd) {
+      // Start Loading
+      setIsLoading(true);
+
+      try {
+        // Call register API
+        const response = await registerUser(
+          fields.firstName,
+          fields.lastName,
+          fields.email,
+          fields.pswd,
+          fields.region
+        );
+
+        console.log("Registration response:", response);
+
+        // Success handling
+        setSuccessMessage("Registration successful!");
+
+        // Optionally, redirect to login page after a delay
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 3000);
+
+      } catch (error) {
+        // Error handling
+        console.error("Registration error:", error);
+
+        let errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        if (errorMessage.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (errorMessage.includes("Failed to fetch")) {
+          errorMessage = "Network error. Please check your internet connection.";
+        }
+        setApiError(errorMessage);
+      } finally {
+        // Stop Loading
+        setIsLoading(false);
+      }
+
       // handle form submission logic here
-      console.log("First Name:", firstName);
-      console.log("Last Name:", lastName);
-      console.log("Email:", email);
-      console.log("Password:", pswd);
-      console.log("Region:", region);
+      console.log("First Name:", fields.firstName);
+      console.log("Last Name:", fields.lastName);
+      console.log("Email:", fields.email);
+      console.log("Password:", fields.pswd);
+      console.log("Region:", fields.region);
     }
   };
 
@@ -144,6 +196,19 @@ const Register = () => {
           Already have an account?{" "}
           <StyledLink href="/auth/login">Login</StyledLink>
         </Section>
+        {/* Success Message */}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+
+        {/* Error Message */}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
         <FormSection onSubmit={handleSubmit} noValidate>
           <TextSection>
             <TextField
@@ -152,7 +217,7 @@ const Register = () => {
               id="first-name"
               label="First Name"
               variant="outlined"
-              value={firstName}
+              value={fields.firstName}
               onChange={handleFirstNameChange}
               error={!!firstNameError}
               helperText={firstNameError}
@@ -162,7 +227,7 @@ const Register = () => {
               id="last-name"
               label="Last Name"
               variant="outlined"
-              value={lastName}
+              value={fields.lastName}
               onChange={handleLastNameChange}
             />
           </TextSection>
@@ -173,21 +238,21 @@ const Register = () => {
             label="Email"
             variant="outlined"
             type="email"
-            value={email}
+            value={fields.email}
             onChange={handleEmailChange}
             error={!!emailError}
             helperText={emailError}
           />
           <PasswordField
             id="password"
-            value={pswd}
+            value={fields.pswd}
             onChange={handlePswdChange}
             error={pswdError}
           />
           <PasswordField
             id="confirm-password"
             label="Confirm Password"
-            value={confirmPswd}
+            value={fields.confirmPswd}
             onChange={handleConfirmPswdChange}
             error={confirmPswdError}
           />
@@ -195,7 +260,7 @@ const Register = () => {
             required
             id="region"
             label="Region"
-            value={region}
+            value={fields.region}
             onChange={handleRegionChange}
             error={regionError}
             options={regionData}
@@ -204,8 +269,8 @@ const Register = () => {
             <Button variant="outlined" onClick={handleCancelClicked}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained">
-              Register
+            <Button type="submit" variant="contained" disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register"}
             </Button>
           </ButtonSection>
         </FormSection>

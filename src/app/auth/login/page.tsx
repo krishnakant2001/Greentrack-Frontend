@@ -21,6 +21,9 @@ import { loginUser } from "@/services/authService";
 import { validateEmail, validatePswd } from "@/utils/validations";
 
 const Login = () => {
+
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [pswd, setPswd] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -28,8 +31,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  const router = useRouter();
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -98,6 +99,7 @@ const Login = () => {
         setTimeout(() => {
           router.push("/dashboard"); // Adjust the route as needed
         }, 1500);
+        
       } catch (error: unknown) {
         // Error handling
         console.error("Login error:", error);
@@ -147,6 +149,7 @@ const Login = () => {
           Don&apos;t have an account?{" "}
           <StyledLink href="/auth/register">Register</StyledLink>
         </Section>
+
         {/* Success Message */}
         {successMessage && (
           <Alert severity="success" sx={{ mb: 2 }}>

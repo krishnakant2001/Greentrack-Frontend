@@ -9,22 +9,57 @@ interface LoginResponse {
 }
 
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-    const response = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
-    });
+  const response = await fetch("http://localhost:8080/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: email,
+      password: password,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
+  if (!response.ok) {
+    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+  }
 
-    return data;
-  };
+  return data;
+};
+
+export const logoutUser = () => {
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("user");
+};
+
+export const registerUser = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+  region: string
+): Promise<{ message: string }> => {
+  const response = await fetch("http://localhost:8080/api/auth/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      password,
+      region,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+  }
+
+  return data;
+};
