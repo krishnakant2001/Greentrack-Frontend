@@ -113,6 +113,26 @@ const theme = createTheme({
         },
       },
     },
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          color: "#27667B", // Deep teal for dropdown icon
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          border: "1px solid #27667B",
+          maxHeight: "190px",
+          backgroundColor: "#FFF8DE",
+          borderRadius: "8px",
+          overflowY: "auto",
+          scrollbarWidth: "none", // Firefox
+          "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari, Opera
+        },
+      },
+    },
   },
 });
 
