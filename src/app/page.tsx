@@ -1,12 +1,14 @@
 'use client'
+import Navbar from '@/components/reusableComponents/Navbar'
 import React from 'react'
 
 const Home = () => {
   return (
     <div>
+      <Navbar />
       <h1>GreenTrack Application</h1>
-      <p>The carbon traker Application</p>
-    </div>
+      <p>Welcome to the GreenTrack application!</p>
+      </div>
   );
 }
 
