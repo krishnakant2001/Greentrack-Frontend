@@ -1,6 +1,6 @@
-'use client'
-import Navbar from '@/components/reusableComponents/Navbar'
-import React from 'react'
+"use client";
+import Navbar from "@/components/Navbar/Navbar";
+import React from "react";
 
 const Home = () => {
   return (
@@ -8,8 +8,8 @@ const Home = () => {
       <Navbar />
       <h1>GreenTrack Application</h1>
       <p>Welcome to the GreenTrack application!</p>
-      </div>
+    </div>
   );
-}
+};
 
-export default Home
+export default Home;

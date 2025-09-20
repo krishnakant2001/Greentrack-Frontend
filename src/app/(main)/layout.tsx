@@ -1,6 +1,7 @@
 "use client";
+import HorizontalNavbar from "@/components/Navbar/HorizontalNavbar";
 import VerticalNavbar from "@/components/Navbar/VerticalNavbar";
-import Navbar from "@/components/reusableComponents/Navbar";
+import Navbar from "@/components/Navbar/Navbar";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -34,7 +35,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   };
   return (
     <div>
-      <Navbar />
+      <HorizontalNavbar />
       <SidebarContainer $expanded={sidebarExpanded}>
         <VerticalNavbar
           expanded={sidebarExpanded}
