@@ -1,3 +1,4 @@
+"use client";
 import { Divider } from "@mui/material";
 import Link from "next/link";
 import React from "react";
@@ -7,14 +8,14 @@ import styled from "styled-components";
 const Container = styled.nav`
   width: 100%;
   height: 60px;
-  background: linear-gradient(135deg, #143d60 0%, #2a5f87 50%, #a0c878 100%);
+  background: linear-gradient(125deg, #143d60 0%, #2a5f87 40%, #a0c878 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
   box-shadow: 0 2px 8px rgba(20, 61, 96, 0.15);
-  position: relative;
-  z-index: 1000;
+  position: fixed;
+  z-index: 2000;
 `;
 
 // Logo with enhanced styling and hover effects
@@ -63,6 +64,10 @@ const MenuItem = styled.div`
     background-color: rgba(255, 255, 255, 0.1);
     color: #ffffff;
     transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &::after {
@@ -136,7 +141,7 @@ const MENU_ITEMS = [
 
 const Navbar = () => {
   return (
-    <Container role="navigation">
+    <Container>
       <LogoSection href="/">🌱 GreenTrack</LogoSection>
 
       <MenuSection>
