@@ -39,8 +39,10 @@ const theme = createTheme({
           textTransform: "none",
           fontWeight: 500,
           fontSize: 16,
-          paddingTop: 8,
-          paddingBottom: 8,
+          padding: "8px 24px",
+          display: "flex",
+          gap: 8,
+
         },
         containedPrimary: {
           backgroundColor: "#27667B",

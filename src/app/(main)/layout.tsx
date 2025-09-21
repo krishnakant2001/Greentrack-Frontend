@@ -1,7 +1,6 @@
 "use client";
 import HorizontalNavbar from "@/components/Navbar/HorizontalNavbar";
 import VerticalNavbar from "@/components/Navbar/VerticalNavbar";
-import Navbar from "@/components/Navbar/Navbar";
 import React, { useState } from "react";
 import styled from "styled-components";
 

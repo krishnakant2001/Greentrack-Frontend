@@ -3,6 +3,7 @@ import styled from "styled-components";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
 import { Divider } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 // Main dropdown container with improved styling
 const DropdownContainer = styled.div`
@@ -79,18 +80,34 @@ const MenuText = styled.span`
 `;
 
 const UserMenu = () => {
+
+  const router = useRouter();
+  
+
+  const handleClickedProfile = () => {
+
+    //call to the api to get user details
+    router.push("/settings/user-details");
+  };
+  
+  const handleClickedLogout = () => {
+    
+    //call to the api to logout user
+    router.push("/logout");
+  };
+
   return (
     <DropdownContainer>
       <MenuNavigation>
 
-        <MenuItem>
+        <MenuItem onClick={handleClickedProfile}>
           <SettingsOutlinedIcon style={{ fontSize: 18 }} />
           <MenuText>Profile Settings</MenuText>
         </MenuItem>
 
         <Divider style={{ margin: "2px 16px", borderColor: "#a0c8783a" }} />
 
-        <MenuItem>
+        <MenuItem onClick={handleClickedLogout}>
           <PowerSettingsNewOutlinedIcon
             style={{ fontSize: 18, color: "#dc2626" }}
           />
