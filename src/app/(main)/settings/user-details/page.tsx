@@ -1,8 +1,11 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   ButtonSection,
   Container,
-  DeleteButton,
+  DangerButton,
+  DangerDescription,
+  DangerTitle,
   Heading,
   LeftSection,
   RightSection,
@@ -11,7 +14,7 @@ import {
   Title,
   Wrapper,
 } from "../../main.styles";
-import { Button, TextField } from "@mui/material";
+import { Button, Divider, TextField } from "@mui/material";
 import PasswordField from "@/components/reusableComponents/PasswordField";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { regionData } from "@/data/regionData";
@@ -19,7 +22,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const UserDetails = () => {
+  const [isEditing, setIsEditing] = useState(false);
   const email = "krishnakant@gmail.com";
+  const [firstName, setFirstName] = useState("Krishnakant");
+
+  const handleFirstNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFirstName(event.target.value);
+  };
   return (
     <Container>
       <Heading>
@@ -28,19 +39,28 @@ const UserDetails = () => {
           Manage your personal information and account settings.
         </Subtitle>
       </Heading>
+      <Divider />
       <Wrapper>
         <ButtonSection>
-          <Button>
-            <EditIcon fontSize="small" />
-            Edit
-          </Button>
-          <Button variant="outlined">
-            Cancel
-          </Button>
-          <Button >Save</Button>
+          {isEditing ? (
+            <>
+              <Button
+                variant="outlined"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Save</Button>
+            </>
+          ) : (
+            <Button onClick={() => setIsEditing(!isEditing)}>
+              <EditIcon fontSize="small" />
+              Edit Profile
+            </Button>
+          )}
         </ButtonSection>
         <Section>
-          <LeftSection>Email</LeftSection>
+          <LeftSection>Email Address</LeftSection>
           <RightSection>
             <TextField
               fullWidth
@@ -54,7 +74,7 @@ const UserDetails = () => {
           </RightSection>
         </Section>
         <Section>
-          <LeftSection>Name</LeftSection>
+          <LeftSection>Full Name</LeftSection>
           <RightSection>
             <TextField
               required
@@ -62,8 +82,9 @@ const UserDetails = () => {
               id="first-name"
               label="First Name"
               variant="outlined"
-              value={"Krishnakant"}
-              // onChange={handleFirstNameChange}
+              value={firstName}
+              onChange={isEditing ? handleFirstNameChange : undefined}
+              // disabled={!isEditing}
               // error={!!firstNameError}
               // helperText={firstNameError}
             />
@@ -78,7 +99,7 @@ const UserDetails = () => {
           </RightSection>
         </Section>
         <Section>
-          <LeftSection>Change Region</LeftSection>
+          <LeftSection>Region Settings</LeftSection>
           <RightSection>
             <InputSelectField
               required
@@ -93,7 +114,7 @@ const UserDetails = () => {
           </RightSection>
         </Section>
         <Section>
-          <LeftSection>Password</LeftSection>
+          <LeftSection>Password Management</LeftSection>
           <RightSection>
             <PasswordField
               id="old-password"
@@ -118,15 +139,25 @@ const UserDetails = () => {
             />
           </RightSection>
         </Section>
-        <Section>
-          <LeftSection>Delete Account</LeftSection>
-          <RightSection>
-            <DeleteButton>
-              <DeleteIcon/>
-              Delete
-            </DeleteButton>
-          </RightSection>
-        </Section>
+        {!isEditing && (
+          <>
+            <Divider />
+            <Section>
+              <LeftSection>Danger Zone</LeftSection>
+              <RightSection>
+                <DangerTitle>Delete Account</DangerTitle>
+                <DangerDescription>
+                  Once you delete your account, there is no going back. Please
+                  be certain. All your data, settings, and progress will be
+                  permanently removed.
+                </DangerDescription>
+                <DangerButton startIcon={<DeleteIcon />}>
+                  Delete My Account
+                </DangerButton>
+              </RightSection>
+            </Section>
+          </>
+        )}
       </Wrapper>
     </Container>
   );
