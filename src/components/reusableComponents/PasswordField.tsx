@@ -19,6 +19,7 @@ interface PasswordFieldProps {
   fullWidth?: boolean;
   id?: string;
   error?: string;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
@@ -29,6 +30,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   fullWidth = true,
   id = "outlined-adornment-password",
   error,
+  onBlur,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -56,6 +58,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         error={!!error}
         endAdornment={
           <InputAdornment position="end">
