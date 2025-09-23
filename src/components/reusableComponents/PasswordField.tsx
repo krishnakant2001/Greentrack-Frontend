@@ -13,7 +13,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 interface PasswordFieldProps {
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   required?: boolean;
   fullWidth?: boolean;

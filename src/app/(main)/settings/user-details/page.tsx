@@ -1,11 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ButtonSection,
   Container,
   DangerButton,
   DangerDescription,
   DangerTitle,
+  FormSection,
   Heading,
   LeftSection,
   RightSection,
@@ -24,12 +25,15 @@ import { validatePswd } from "@/utils/validations";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const email = "krishnakant@gmail.com";
+  const [loading, setLoading] = useState(true);
+  const token =
+    "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGQwYzEyNzE0ZjRjZDBjMmZiYmJiOGQiLCJlbWFpbCI6InByYXRoYW1AZ21haWwuY29tIiwiaWF0IjoxNzU4NjM1MTI1LCJleHAiOjE3NjEyMjcxMjV9._-aqrjwq6qpxLpDFcmDetyrwJjE1hSPkT3ZgX6cQ453--42gi4Fh_e5KygBOuDaQ";
 
   const [fields, setFields] = useState({
-    firstName: "Krishnakant",
-    lastName: "Nagvanshi",
-    region: "IN",
+    email: "",
+    firstName: "",
+    lastName: "",
+    region: "",
     currentPswd: "",
     newPswd: "",
     confirmPswd: "",
@@ -41,7 +45,49 @@ const UserDetails = () => {
   const [newPswdError, setNewPswdError] = useState("");
   const [confirmPswdError, setConfirmPswdError] = useState("");
 
-  const handleFirstNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/users/profile",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const res = await response.json();
+
+        setFields({
+          email: res.data.email || "",
+          firstName: res.data.firstName || "",
+          lastName: res.data.lastName || "",
+          region: res.data.region || "",
+          currentPswd: "",
+          newPswd: "",
+          confirmPswd: "",
+        });
+      } catch (error) {
+        console.error("Failed to fetch user details", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserDetails();
+  }, [refreshKey]);
+
+  const handleFirstNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFields({ ...fields, firstName: event.target.value });
     if (event.target.value !== "") {
       setFirstNameError("");
@@ -93,6 +139,50 @@ const UserDetails = () => {
       setConfirmPswdError("Passwords do not match.");
     }
   };
+
+  const checkValidations = () => {
+    let valid = true;
+
+    if (!validatePswd(fields.newPswd)) {
+      setNewPswdError("Password must have 6 characters.");
+      valid = false;
+    }
+    if (fields.newPswd !== fields.currentPswd) {
+      valid = false;
+    }
+
+    return valid;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    console.log("Submitting...");
+    event.preventDefault();
+
+    if (!fields.firstName) {
+      setFirstNameError("Please enter your first name.");
+    }
+    if (!fields.region) {
+      setRegionError("Please select a region.");
+    }
+
+    if (checkValidations()) {
+      console.log("Email:", fields.email);
+      console.log("First Name:", fields.firstName);
+      console.log("Last Name:", fields.lastName);
+      console.log("Region:", fields.region);
+      console.log("Current Password:", fields.currentPswd);
+      console.log("New Password:", fields.newPswd);
+      console.log("Confirm Password:", fields.confirmPswd);
+    }
+  };
+
+  const handleCancelButton = () => {
+    setRefreshKey((prev) => prev + 1);
+    setIsEditing(!isEditing);
+    setCurrentPswdError("");
+  };
+
+  if (loading) return <div>Loading...</div>;
   return (
     <Container>
       <Heading>
@@ -103,123 +193,122 @@ const UserDetails = () => {
       </Heading>
       <Divider />
       <Wrapper>
-        <ButtonSection>
-          {isEditing ? (
-            <>
-              <Button
-                variant="outlined"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                Cancel
+        <FormSection onSubmit={handleSubmit} noValidate>
+          <ButtonSection>
+            {isEditing ? (
+              <>
+                <Button variant="outlined" onClick={handleCancelButton}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save</Button>
+              </>
+            ) : (
+              <Button onClick={() => setIsEditing(!isEditing)}>
+                <EditIcon fontSize="small" />
+                Edit Profile
               </Button>
-              <Button type="submit">Save</Button>
+            )}
+          </ButtonSection>
+          <Section>
+            <LeftSection>Email Address</LeftSection>
+            <RightSection>
+              <TextField
+                fullWidth
+                required
+                id="email"
+                label="Email"
+                type="Email"
+                variant="outlined"
+                value={fields.email}
+              />
+            </RightSection>
+          </Section>
+          <Section>
+            <LeftSection>Full Name</LeftSection>
+            <RightSection>
+              <TextField
+                required
+                fullWidth
+                id="first-name"
+                label="First Name"
+                variant="outlined"
+                value={fields.firstName}
+                onChange={isEditing ? handleFirstNameChange : undefined}
+                error={!!firstNameError}
+                helperText={firstNameError}
+              />
+              <TextField
+                fullWidth
+                id="last-name"
+                label="Last Name"
+                variant="outlined"
+                value={fields.lastName}
+                onChange={isEditing ? handleLastNameChange : undefined}
+              />
+            </RightSection>
+          </Section>
+          <Section>
+            <LeftSection>Region Settings</LeftSection>
+            <RightSection>
+              <InputSelectField
+                required
+                id="region"
+                label="Region"
+                fullWidth
+                value={fields.region}
+                onChange={isEditing ? handleRegionChange : undefined}
+                error={regionError}
+                options={regionData}
+              />
+            </RightSection>
+          </Section>
+          <Section>
+            <LeftSection>Password Management</LeftSection>
+            <RightSection>
+              <PasswordField
+                id="current-password"
+                label="Current Password"
+                value={fields.currentPswd}
+                onChange={isEditing ? handleCurrentPswdChange : undefined}
+                error={currentPswdError}
+                onBlur={handleCurrentPswdBlur}
+              />
+              <PasswordField
+                id="new-password"
+                label="New Password"
+                value={fields.newPswd}
+                onChange={isEditing ? handleNewPswdChange : undefined}
+                error={newPswdError}
+              />
+              <PasswordField
+                id="confirm-password"
+                label="Confirm Password"
+                value={fields.confirmPswd}
+                onChange={isEditing ? handleConfirmPswdChange : undefined}
+                error={confirmPswdError}
+              />
+            </RightSection>
+          </Section>
+          {!isEditing && (
+            <>
+              <Divider />
+              <Section>
+                <LeftSection>Danger Zone</LeftSection>
+                <RightSection>
+                  <DangerTitle>Delete Account</DangerTitle>
+                  <DangerDescription>
+                    Once you delete your account, there is no going back. Please
+                    be certain. All your data, settings, and progress will be
+                    permanently removed.
+                  </DangerDescription>
+                  <DangerButton startIcon={<DeleteIcon />}>
+                    Delete My Account
+                  </DangerButton>
+                </RightSection>
+              </Section>
             </>
-          ) : (
-            <Button onClick={() => setIsEditing(!isEditing)}>
-              <EditIcon fontSize="small" />
-              Edit Profile
-            </Button>
           )}
-        </ButtonSection>
-        <Section>
-          <LeftSection>Email Address</LeftSection>
-          <RightSection>
-            <TextField
-              fullWidth
-              required
-              id="email"
-              label="Email"
-              type="Email"
-              variant="outlined"
-              value={email}
-            />
-          </RightSection>
-        </Section>
-        <Section>
-          <LeftSection>Full Name</LeftSection>
-          <RightSection>
-            <TextField
-              required
-              fullWidth
-              id="first-name"
-              label="First Name"
-              variant="outlined"
-              value={fields.firstName}
-              onChange={isEditing ? handleFirstNameChange : undefined}
-              error={!!firstNameError}
-              helperText={firstNameError}
-            />
-            <TextField
-              fullWidth
-              id="last-name"
-              label="Last Name"
-              variant="outlined"
-              value={"Nagvanshi"}
-              onChange={handleLastNameChange}
-            />
-          </RightSection>
-        </Section>
-        <Section>
-          <LeftSection>Region Settings</LeftSection>
-          <RightSection>
-            <InputSelectField
-              required
-              id="region"
-              label="Region"
-              fullWidth
-              value={fields.region}
-              onChange={handleRegionChange}
-              error={regionError}
-              options={regionData}
-            />
-          </RightSection>
-        </Section>
-        <Section>
-          <LeftSection>Password Management</LeftSection>
-          <RightSection>
-            <PasswordField
-              id="current-password"
-              label="Current Password"
-              value={fields.currentPswd}
-              onChange={handleCurrentPswdChange}
-              error={currentPswdError}
-              onBlur={handleCurrentPswdBlur}
-            />
-            <PasswordField
-              id="new-password"
-              label="New Password"
-              value={fields.newPswd}
-              onChange={handleNewPswdChange}
-              error={newPswdError}
-            />
-            <PasswordField
-              id="confirm-password"
-              label="Confirm Password"
-              value={fields.confirmPswd}
-              onChange={handleConfirmPswdChange}
-              error={confirmPswdError}
-            />
-          </RightSection>
-        </Section>
-        {!isEditing && (
-          <>
-            <Divider />
-            <Section>
-              <LeftSection>Danger Zone</LeftSection>
-              <RightSection>
-                <DangerTitle>Delete Account</DangerTitle>
-                <DangerDescription>
-                  Once you delete your account, there is no going back. Please
-                  be certain. All your data, settings, and progress will be
-                  permanently removed.
-                </DangerDescription>
-                <DangerButton startIcon={<DeleteIcon />}>
-                  Delete My Account
-                </DangerButton>
-              </RightSection>
-            </Section>
-          </>
-        )}
+        </FormSection>
       </Wrapper>
     </Container>
   );

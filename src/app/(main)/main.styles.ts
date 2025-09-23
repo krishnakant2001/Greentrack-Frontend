@@ -24,6 +24,8 @@ export const Wrapper = styled.div`
   border-radius: 12px;
 `;
 
+export const FormSection = styled.form``;
+
 export const Section = styled.div`
   display: flex;
   gap: 24px;

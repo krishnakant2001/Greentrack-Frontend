@@ -10,7 +10,7 @@ import React from "react";
 
 interface InputSelectFieldProps {
   value: string;
-  onChange: (event: SelectChangeEvent) => void;
+  onChange?: (event: SelectChangeEvent) => void;
   label?: string;
   required?: boolean;
   fullWidth?: boolean;
