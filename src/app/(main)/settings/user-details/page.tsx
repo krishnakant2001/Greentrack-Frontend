@@ -21,7 +21,7 @@ import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { regionData } from "@/data/regionData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { validatePswd } from "@/utils/validations";
+import { validateCurrentPassword, validateNewPswd, validatePswd } from "@/utils/validations";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -115,12 +115,6 @@ const UserDetails = () => {
     }
   };
 
-  const handleCurrentPswdBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (!validatePswd(event.target.value)) {
-      setCurrentPswdError("Password must have 6 characters.");
-    }
-  };
-
   const handleNewPswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, newPswd: event.target.value });
     if (validatePswd(event.target.value)) {
@@ -140,32 +134,64 @@ const UserDetails = () => {
     }
   };
 
-  const checkValidations = () => {
-    let valid = true;
+  const checkUpdatedFormAndPasswordValidation = () => {
 
-    if (!validatePswd(fields.newPswd)) {
-      setNewPswdError("Password must have 6 characters.");
-      valid = false;
+    if (!fields.firstName) {
+      setFirstNameError("Please enter your first name.");
+      return false;
     }
-    if (fields.newPswd !== fields.currentPswd) {
-      valid = false;
+    if (!fields.region) {
+      setRegionError("Please select a region.");
+      return false;
     }
 
-    return valid;
+    // Current Password is empty
+    if(!fields.currentPswd){
+      if(fields.newPswd || fields.confirmPswd){
+        setCurrentPswdError("Please provide the current password");
+        return false;
+      }
+    }
+
+    // Current password is non empty
+    if(fields.currentPswd){
+      if(!validateCurrentPassword(fields.currentPswd)){
+        setCurrentPswdError("Current Password must have at least 6 characters");
+        return false;
+      }
+      else if(!fields.newPswd) {
+        setNewPswdError("Please provide new password");
+        return false;
+      }
+      else if(fields.newPswd && !validateNewPswd(fields.newPswd)) {
+        setNewPswdError("Password must have at least 6 characters");
+        return false;
+      }
+      else if(fields.newPswd === fields.currentPswd) {
+        setNewPswdError("Your new password is matching with your current password");
+        return false;
+      }
+      else if(fields.newPswd !== fields.confirmPswd) {
+        setConfirmPswdError("Passwords do not match.");
+        return false;
+      }
+    }
+
+    if (!fields.currentPswd && !fields.newPswd && !fields.confirmPswd) {
+      setCurrentPswdError("");
+      setNewPswdError("");
+      setConfirmPswdError("");
+    }
+
+    return true;
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     console.log("Submitting...");
     event.preventDefault();
 
-    if (!fields.firstName) {
-      setFirstNameError("Please enter your first name.");
-    }
-    if (!fields.region) {
-      setRegionError("Please select a region.");
-    }
 
-    if (checkValidations()) {
+    if (checkUpdatedFormAndPasswordValidation()) {
       console.log("Email:", fields.email);
       console.log("First Name:", fields.firstName);
       console.log("Last Name:", fields.lastName);
@@ -180,6 +206,8 @@ const UserDetails = () => {
     setRefreshKey((prev) => prev + 1);
     setIsEditing(!isEditing);
     setCurrentPswdError("");
+    setNewPswdError("");
+    setConfirmPswdError("");
   };
 
   if (loading) return <div>Loading...</div>;
@@ -271,7 +299,6 @@ const UserDetails = () => {
                 value={fields.currentPswd}
                 onChange={isEditing ? handleCurrentPswdChange : undefined}
                 error={currentPswdError}
-                onBlur={handleCurrentPswdBlur}
               />
               <PasswordField
                 id="new-password"

@@ -6,3 +6,11 @@ export const validateEmail = (value: string) => {
 export const validatePswd = (value: string) => {
   return value.length >= 6;
 };
+
+export const validateCurrentPassword = (value: string) => {
+  return value.length === 0 || value.length >= 6;
+}
+
+export const validateNewPswd = (value: string) => {
+  return (value.length === 0 || value.length >= 6);
+}
