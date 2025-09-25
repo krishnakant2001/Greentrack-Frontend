@@ -6,6 +6,7 @@ import {
   DangerButton,
   DangerDescription,
   DangerTitle,
+  DividerWithMargin,
   FormSection,
   Heading,
   LeftSection,
@@ -15,19 +16,25 @@ import {
   Title,
   Wrapper,
 } from "../../main.styles";
-import { Button, Divider, SelectChangeEvent, TextField } from "@mui/material";
+import { Button, Divider, SelectChangeEvent, TextField, Typography } from "@mui/material";
 import PasswordField from "@/components/reusableComponents/PasswordField";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { regionData } from "@/data/regionData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { validateCurrentPassword, validateNewPswd, validatePswd } from "@/utils/validations";
+import {
+  validateCurrentPassword,
+  validateNewPswd,
+  validatePswd,
+} from "@/utils/validations";
+import {
+  getUserProfileDetails,
+  updateUserProfileDetails,
+} from "@/services/userDetailsService";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const token =
-    "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGQwYzEyNzE0ZjRjZDBjMmZiYmJiOGQiLCJlbWFpbCI6InByYXRoYW1AZ21haWwuY29tIiwiaWF0IjoxNzU4NjM1MTI1LCJleHAiOjE3NjEyMjcxMjV9._-aqrjwq6qpxLpDFcmDetyrwJjE1hSPkT3ZgX6cQ453--42gi4Fh_e5KygBOuDaQ";
+  const [isLoading, setIsLoading] = useState(false);
 
   const [fields, setFields] = useState({
     email: "",
@@ -50,28 +57,13 @@ const UserDetails = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8080/api/users/profile",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const res = await response.json();
+        const res = await getUserProfileDetails();
 
         setFields({
-          email: res.data.email || "",
-          firstName: res.data.firstName || "",
-          lastName: res.data.lastName || "",
-          region: res.data.region || "",
+          email: res.data?.email || "",
+          firstName: res.data?.firstName || "",
+          lastName: res.data?.lastName || "",
+          region: res.data?.region || "",
           currentPswd: "",
           newPswd: "",
           confirmPswd: "",
@@ -79,7 +71,7 @@ const UserDetails = () => {
       } catch (error) {
         console.error("Failed to fetch user details", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     fetchUserDetails();
@@ -135,7 +127,6 @@ const UserDetails = () => {
   };
 
   const checkUpdatedFormAndPasswordValidation = () => {
-
     if (!fields.firstName) {
       setFirstNameError("Please enter your first name.");
       return false;
@@ -146,32 +137,30 @@ const UserDetails = () => {
     }
 
     // Current Password is empty
-    if(!fields.currentPswd){
-      if(fields.newPswd || fields.confirmPswd){
+    if (!fields.currentPswd) {
+      if (fields.newPswd || fields.confirmPswd) {
         setCurrentPswdError("Please provide the current password");
         return false;
       }
     }
 
     // Current password is non empty
-    if(fields.currentPswd){
-      if(!validateCurrentPassword(fields.currentPswd)){
+    if (fields.currentPswd) {
+      if (!validateCurrentPassword(fields.currentPswd)) {
         setCurrentPswdError("Current Password must have at least 6 characters");
         return false;
-      }
-      else if(!fields.newPswd) {
+      } else if (!fields.newPswd) {
         setNewPswdError("Please provide new password");
         return false;
-      }
-      else if(fields.newPswd && !validateNewPswd(fields.newPswd)) {
+      } else if (fields.newPswd && !validateNewPswd(fields.newPswd)) {
         setNewPswdError("Password must have at least 6 characters");
         return false;
-      }
-      else if(fields.newPswd === fields.currentPswd) {
-        setNewPswdError("Your new password is matching with your current password");
+      } else if (fields.newPswd === fields.currentPswd) {
+        setNewPswdError(
+          "Your new password is matching with your current password"
+        );
         return false;
-      }
-      else if(fields.newPswd !== fields.confirmPswd) {
+      } else if (fields.newPswd !== fields.confirmPswd) {
         setConfirmPswdError("Passwords do not match.");
         return false;
       }
@@ -190,15 +179,38 @@ const UserDetails = () => {
     console.log("Submitting...");
     event.preventDefault();
 
-
     if (checkUpdatedFormAndPasswordValidation()) {
-      console.log("Email:", fields.email);
-      console.log("First Name:", fields.firstName);
-      console.log("Last Name:", fields.lastName);
-      console.log("Region:", fields.region);
-      console.log("Current Password:", fields.currentPswd);
-      console.log("New Password:", fields.newPswd);
-      console.log("Confirm Password:", fields.confirmPswd);
+      setIsLoading(true);
+      try {
+        const updateUserProfileResponse = await updateUserProfileDetails(
+          fields.firstName,
+          fields.lastName,
+          fields.region,
+          fields.currentPswd,
+          fields.newPswd
+        );
+
+        console.log(
+          "User Profile Updated response:",
+          updateUserProfileResponse
+        );
+      } catch (error) {
+        let errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        if (errorMessage.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (errorMessage.includes("Failed to fetch")) {
+          errorMessage =
+            "Network error. Please check your internet connection.";
+        }
+        console.error(errorMessage);
+      } finally {
+        // Stop Loading
+        setIsLoading(false);
+        setIsEditing(!isEditing);
+        setRefreshKey((prev) => prev + 1);
+      }
     }
   };
 
@@ -210,7 +222,7 @@ const UserDetails = () => {
     setConfirmPswdError("");
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
   return (
     <Container>
       <Heading>
@@ -291,8 +303,12 @@ const UserDetails = () => {
             </RightSection>
           </Section>
           <Section>
-            <LeftSection>Password Management</LeftSection>
+            <LeftSection>Password Management </LeftSection>
             <RightSection>
+              <Typography variant="body2" color="#143D60">
+                Note: If you don&apos;t want to update your password, leave the
+                password fields empty.
+              </Typography>
               <PasswordField
                 id="current-password"
                 label="Current Password"
@@ -318,7 +334,7 @@ const UserDetails = () => {
           </Section>
           {!isEditing && (
             <>
-              <Divider />
+              <DividerWithMargin />
               <Section>
                 <LeftSection>Danger Zone</LeftSection>
                 <RightSection>

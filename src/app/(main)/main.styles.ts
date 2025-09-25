@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 import styled from "styled-components";
 
 export const Container = styled.div``;
@@ -52,13 +52,15 @@ export const LeftSection = styled.div`
 
 export const RightSection = styled.div`
   display: flex;
-  /* position: relative; */
   flex-direction: column;
   align-items: flex-start;
   gap: 24px;
   flex: 2;
   padding-left: 32px;
 `;
+export const Space = styled.div`
+  height: 36px;
+`
 
 /* Danger button for delete actions */
 export const DangerButton = styled(Button)`
@@ -92,3 +94,10 @@ export const DangerDescription = styled.p`
 
   margin: 0 0 16px 0;
 `;
+
+export const DividerWithMargin = styled(Divider)`
+  &&{
+    margin-top: 36px;
+    margin-bottom: 24px;
+  }
+`
