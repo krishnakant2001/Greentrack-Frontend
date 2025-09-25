@@ -11,6 +11,7 @@ import React from "react";
 interface InputSelectFieldProps {
   value: string;
   onChange?: (event: SelectChangeEvent) => void;
+  onClick?: () => void;
   label?: string;
   required?: boolean;
   fullWidth?: boolean;
@@ -21,6 +22,7 @@ interface InputSelectFieldProps {
 const InputSelectField: React.FC<InputSelectFieldProps> = ({
   value,
   onChange,
+  onClick,
   label,
   required,
   fullWidth,
@@ -29,7 +31,12 @@ const InputSelectField: React.FC<InputSelectFieldProps> = ({
   options,
 }) => {
   return (
-    <FormControl required={required} fullWidth={fullWidth} error={!!error}>
+    <FormControl
+      required={required}
+      fullWidth={fullWidth}
+      error={!!error}
+      onClick={onClick}
+    >
       <InputLabel id={id} error={!!error}>
         {label}
       </InputLabel>

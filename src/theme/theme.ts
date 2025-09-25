@@ -42,7 +42,10 @@ const theme = createTheme({
           padding: "8px 24px",
           display: "flex",
           gap: 8,
-
+        },
+        contained: {
+          paddingTop: "8.5px",
+          paddingBottom: "8.5px",
         },
         containedPrimary: {
           backgroundColor: "#27667B",
@@ -135,6 +138,21 @@ const theme = createTheme({
         },
       },
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          padding: "12px",
+          borderRadius: "12px",
+          backgroundColor: "#FFF8DE",
+          minWidth: "500px",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: { root: { fontWeight: 600, color: "#143D60" } },
+    },
+    MuiDialogContentText: { styleOverrides: { root: { color: "#143D60" } } },
+    MuiDialogActions: { styleOverrides: { root: { gap: "8px" } } },
   },
 });
 

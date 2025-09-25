@@ -14,6 +14,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 interface PasswordFieldProps {
   value: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClick?: () => void;
   label?: string;
   required?: boolean;
   fullWidth?: boolean;
@@ -24,6 +25,7 @@ interface PasswordFieldProps {
 const PasswordField: React.FC<PasswordFieldProps> = ({
   value,
   onChange,
+  onClick,
   label = "Password",
   required = true,
   fullWidth = true,
@@ -56,13 +58,11 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={onChange}
+        onClick={onClick}
         error={!!error}
         endAdornment={
           <InputAdornment position="end">
             <IconButton
-              aria-label={
-                showPassword ? "hide the password" : "display the password"
-              }
               onClick={handleClickShowPassword}
               onMouseDown={handleMouseDownPassword}
               onMouseUp={handleMouseUpPassword}

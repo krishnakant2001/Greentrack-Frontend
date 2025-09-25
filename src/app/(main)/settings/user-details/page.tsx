@@ -16,7 +16,13 @@ import {
   Title,
   Wrapper,
 } from "../../main.styles";
-import { Button, Divider, SelectChangeEvent, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Divider,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
 import PasswordField from "@/components/reusableComponents/PasswordField";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { regionData } from "@/data/regionData";
@@ -31,6 +37,8 @@ import {
   getUserProfileDetails,
   updateUserProfileDetails,
 } from "@/services/userDetailsService";
+import { DecisionModal } from "@/model/DecisionModal";
+import { MessageModal } from "@/model/MessageModal";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -52,7 +60,11 @@ const UserDetails = () => {
   const [newPswdError, setNewPswdError] = useState("");
   const [confirmPswdError, setConfirmPswdError] = useState("");
 
+  const [decisionModalOpen, setDecisionModalOpen] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+
   const [refreshKey, setRefreshKey] = useState(0);
+  const [emailFieldFocus, setEmailFieldFocus] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -77,6 +89,11 @@ const UserDetails = () => {
     fetchUserDetails();
   }, [refreshKey]);
 
+  const handleTextFieldClick = () => {
+    if (!isEditing) {
+      setMessageModalOpen(true);
+    }
+  };
   const handleFirstNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -123,6 +140,15 @@ const UserDetails = () => {
       setConfirmPswdError("");
     } else {
       setConfirmPswdError("Passwords do not match.");
+    }
+  };
+
+  const handleDecision = (action: "delete" | "cancel") => {
+    setDecisionModalOpen(false);
+    if (action === "delete") {
+      console.log("User confirmed account deletion");
+    } else {
+      console.log("User cancelled deletion");
     }
   };
 
@@ -260,6 +286,13 @@ const UserDetails = () => {
                 type="Email"
                 variant="outlined"
                 value={fields.email}
+                onFocus={() => setEmailFieldFocus(true)}
+                onBlur={() => setEmailFieldFocus(false)}
+                helperText={
+                  emailFieldFocus
+                    ? "You are not allowed to change your email address."
+                    : ""
+                }
               />
             </RightSection>
           </Section>
@@ -274,6 +307,7 @@ const UserDetails = () => {
                 variant="outlined"
                 value={fields.firstName}
                 onChange={isEditing ? handleFirstNameChange : undefined}
+                onClick={handleTextFieldClick}
                 error={!!firstNameError}
                 helperText={firstNameError}
               />
@@ -284,6 +318,7 @@ const UserDetails = () => {
                 variant="outlined"
                 value={fields.lastName}
                 onChange={isEditing ? handleLastNameChange : undefined}
+                onClick={handleTextFieldClick}
               />
             </RightSection>
           </Section>
@@ -297,6 +332,7 @@ const UserDetails = () => {
                 fullWidth
                 value={fields.region}
                 onChange={isEditing ? handleRegionChange : undefined}
+                onClick={handleTextFieldClick}
                 error={regionError}
                 options={regionData}
               />
@@ -314,6 +350,7 @@ const UserDetails = () => {
                 label="Current Password"
                 value={fields.currentPswd}
                 onChange={isEditing ? handleCurrentPswdChange : undefined}
+                onClick={handleTextFieldClick}
                 error={currentPswdError}
               />
               <PasswordField
@@ -321,6 +358,7 @@ const UserDetails = () => {
                 label="New Password"
                 value={fields.newPswd}
                 onChange={isEditing ? handleNewPswdChange : undefined}
+                onClick={handleTextFieldClick}
                 error={newPswdError}
               />
               <PasswordField
@@ -328,6 +366,7 @@ const UserDetails = () => {
                 label="Confirm Password"
                 value={fields.confirmPswd}
                 onChange={isEditing ? handleConfirmPswdChange : undefined}
+                onClick={handleTextFieldClick}
                 error={confirmPswdError}
               />
             </RightSection>
@@ -344,13 +383,30 @@ const UserDetails = () => {
                     be certain. All your data, settings, and progress will be
                     permanently removed.
                   </DangerDescription>
-                  <DangerButton startIcon={<DeleteIcon />}>
+                  <DangerButton
+                    startIcon={<DeleteIcon />}
+                    onClick={() => {
+                      setDecisionModalOpen(true);
+                    }}
+                  >
                     Delete My Account
                   </DangerButton>
+                  <DecisionModal
+                    open={decisionModalOpen}
+                    handleClose={handleDecision}
+                    title="Are you sure you want to delete your account?"
+                    description="This action is irreversible. All your data, settings, and progress will be permanently removed. Please confirm that you want to proceed with deleting your account."
+                  />
                 </RightSection>
               </Section>
             </>
           )}
+          <MessageModal
+            open={messageModalOpen}
+            handleClose={() => setMessageModalOpen(false)}
+            title="Profile Editing Disabled"
+            description="Your profile fields are currently locked. Click on 'Edit Profile' button to enable editing"
+          />
         </FormSection>
       </Wrapper>
     </Container>

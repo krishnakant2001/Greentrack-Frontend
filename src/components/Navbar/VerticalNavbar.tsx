@@ -8,7 +8,7 @@ interface VerticalNavbarProps {
 
 const VerticalNavbar: React.FC<VerticalNavbarProps> = ({onCollapse, expanded = false}) => {
   return (
-    <SidebarContainer role="navigation" aria-label="Main navigation sidebar">
+    <SidebarContainer role="navigation">
       <NavigationWrapper $expanded={expanded}>
 
         {NAV_ITEMS.map((item) => {
