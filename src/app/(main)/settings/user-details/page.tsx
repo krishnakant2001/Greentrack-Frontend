@@ -17,6 +17,7 @@ import {
   Wrapper,
 } from "../../main.styles";
 import {
+  Alert,
   Button,
   Divider,
   SelectChangeEvent,
@@ -34,11 +35,13 @@ import {
   validatePswd,
 } from "@/utils/validations";
 import {
+  deleteUserProfile,
   getUserProfileDetails,
   updateUserProfileDetails,
 } from "@/services/userDetailsService";
 import { DecisionModal } from "@/model/DecisionModal";
 import { MessageModal } from "@/model/MessageModal";
+import { useRouter } from "next/navigation";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -65,6 +68,10 @@ const UserDetails = () => {
 
   const [refreshKey, setRefreshKey] = useState(0);
   const [emailFieldFocus, setEmailFieldFocus] = useState(false);
+
+  const [deleteMessage, setDeleteMessage] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -143,10 +150,34 @@ const UserDetails = () => {
     }
   };
 
-  const handleDecision = (action: "delete" | "cancel") => {
+  const handleDecision = async (action: "delete" | "cancel") => {
     setDecisionModalOpen(false);
     if (action === "delete") {
       console.log("User confirmed account deletion");
+      setIsLoading(true);
+      try {
+        const deleteUserProfileResponse = await deleteUserProfile();
+        setDeleteMessage(deleteUserProfileResponse.data);
+
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        
+      } catch (error) {
+        let errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        if (errorMessage.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (errorMessage.includes("Failed to fetch")) {
+          errorMessage =
+            "Network error. Please check your internet connection.";
+        }
+        console.error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+      
     } else {
       console.log("User cancelled deletion");
     }
@@ -257,8 +288,15 @@ const UserDetails = () => {
           Manage your personal information and account settings.
         </Subtitle>
       </Heading>
+
       <Divider />
+
       <Wrapper>
+        {deleteMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {deleteMessage}
+          </Alert>
+        )}
         <FormSection onSubmit={handleSubmit} noValidate>
           <ButtonSection>
             {isEditing ? (

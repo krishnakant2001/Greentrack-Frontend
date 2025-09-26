@@ -10,7 +10,7 @@ interface updateUserProfileResponse {
 }
 
 const token =
-  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGQwYzEyNzE0ZjRjZDBjMmZiYmJiOGQiLCJlbWFpbCI6InByYXRoYW1AZ21haWwuY29tIiwiaWF0IjoxNzU4NjM1MTI1LCJleHAiOjE3NjEyMjcxMjV9._-aqrjwq6qpxLpDFcmDetyrwJjE1hSPkT3ZgX6cQ453--42gi4Fh_e5KygBOuDaQ";
+  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGI2NmRlOWVmOGI3ZTAyY2ExNGQ2ZTAiLCJlbWFpbCI6ImtyaXNobmFrYW50QGdtYWlsLmNvbSIsImlhdCI6MTc1ODkxMzMzNywiZXhwIjoxNzYxNTA1MzM3fQ.ujaR1HygZvKQLbiHi_cKfzq_R2Ea3WFInjClqpem0-37DRLogqQXZCH1zMcDlCGk";
 
 export const getUserProfileDetails = async () => {
   const response = await fetch("http://localhost:8080/api/users/profile", {
@@ -58,3 +58,20 @@ export const updateUserProfileDetails = async (
 
   return data;
 };
+
+
+export const deleteUserProfile = async () => {
+  const response = await fetch("http://localhost:8080/api/users/profile", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
