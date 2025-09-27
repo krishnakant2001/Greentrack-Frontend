@@ -5,14 +5,13 @@ import styled from "styled-components";
 export const Container = styled.div``;
 
 export const Heading = styled.div`
-padding: 8px;
+  padding: 8px;
   margin-bottom: 20px;
 `;
 
 export const Title = styled.h1``;
 
 export const Subtitle = styled.h3`
-
   font-weight: 500;
 `;
 
@@ -60,7 +59,7 @@ export const RightSection = styled.div`
 `;
 export const Space = styled.div`
   height: 36px;
-`
+`;
 
 /* Danger button for delete actions */
 export const DangerButton = styled(Button)`
@@ -96,8 +95,25 @@ export const DangerDescription = styled.p`
 `;
 
 export const DividerWithMargin = styled(Divider)`
-  &&{
+  && {
     margin-top: 36px;
     margin-bottom: 24px;
   }
-`
+`;
+
+// Create Emission factor
+
+export const EmissionFactorSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+`;
+export const SectionTitle = styled.h3`
+  font-size: 24px;
+  font-weight: 700;
+  color: #143c60e5;
+`;
+export const SubSection = styled.div`
+  display: flex;
+  gap: 32px;
+`;

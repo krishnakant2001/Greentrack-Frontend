@@ -81,6 +81,13 @@ const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
+          "& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button":
+            {
+              WebkitAppearance: "none",
+            },
+          "& input[type=number]": {
+            MozAppearance: "textfield", // Firefox
+          },
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: "#27667B",
           },
