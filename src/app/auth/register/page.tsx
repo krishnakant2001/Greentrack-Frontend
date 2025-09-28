@@ -114,6 +114,13 @@ const Register = () => {
     return valid;
   };
 
+  const checkInputFields = () => {
+    if(!fields.firstName || !fields.email || !fields.pswd || !fields.confirmPswd || !fields.region) {
+      return false;
+    }
+    return true;
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -133,7 +140,7 @@ const Register = () => {
       setRegionError("Please select a region.");
     }
 
-    if (checkValidCredentials() && fields.confirmPswd === fields.pswd) {
+    if (checkValidCredentials() && checkInputFields() && fields.confirmPswd === fields.pswd) {
       // Start Loading
       setIsLoading(true);
 

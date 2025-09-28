@@ -1,5 +1,11 @@
 "use client";
-import { Button, Divider, SelectChangeEvent, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Divider,
+  SelectChangeEvent,
+  TextField,
+} from "@mui/material";
 import {
   ButtonSection,
   Container,
@@ -20,6 +26,8 @@ import { activityCategoryData } from "@/data/activityCategoryData";
 import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 import DecimalField from "@/components/reusableComponents/DecimalField";
 import { MessageModal } from "@/model/MessageModal";
+import { useRouter } from "next/navigation";
+import { createEmissionFactor } from "@/services/emissionFactor";
 
 const CreateEmissionFactor = () => {
   const [fields, setFields] = useState({
@@ -39,6 +47,12 @@ const CreateEmissionFactor = () => {
   const [co2eFactorError, setCo2eFactorError] = useState("");
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const router = useRouter();
 
   const subCatergoryList = () => {
     if (fields.activityCategory) {
@@ -121,7 +135,20 @@ const CreateEmissionFactor = () => {
     // }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const checkInputFields = () => {
+    if (
+      !fields.region ||
+      !fields.activityCategory ||
+      !fields.activitySubCategory ||
+      !fields.unit ||
+      !fields.co2eFactor
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     console.log("Submitting....");
 
@@ -140,6 +167,48 @@ const CreateEmissionFactor = () => {
     if (!fields.co2eFactor) {
       setCo2eFactorError("Please provide the co2 emsission factor");
     }
+
+    if (checkInputFields()) {
+      setIsLoading(true);
+      try {
+        const response = await createEmissionFactor(
+          fields.region,
+          fields.activityCategory,
+          fields.activitySubCategory,
+          fields.unit,
+          fields.co2eFactor,
+          fields.methodology,
+          fields.source
+        );
+
+        console.log("Create Emission Factor successfully:", response);
+
+        // Success handling
+        setSuccessMessage(response.message);
+
+        // Optionally, redirect to login page after a delay
+        setTimeout(() => {
+          router.push("/admin/emission-factor");
+        }, 3000);
+      } catch (error) {
+        // Error handling
+        console.error("Registration error:", error);
+
+        let errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        if (errorMessage.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (errorMessage.includes("Failed to fetch")) {
+          errorMessage =
+            "Network error. Please check your internet connection.";
+        }
+        setApiError(errorMessage);
+      } finally {
+        // Stop Loading
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleCancelButton = () => {
@@ -153,6 +222,7 @@ const CreateEmissionFactor = () => {
 
   return (
     <Container>
+      {isLoading && <div>Loading....</div>}
       <Heading>
         <Title>Create Emission Factor</Title>
         <Subtitle>
@@ -161,6 +231,16 @@ const CreateEmissionFactor = () => {
       </Heading>
       <Divider />
       <Wrapper>
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
         <FormSection onSubmit={handleSubmit} noValidate>
           <ButtonSection>
             <Button variant="outlined" onClick={handleCancelButton}>
