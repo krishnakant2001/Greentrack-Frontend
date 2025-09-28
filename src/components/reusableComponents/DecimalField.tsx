@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -36,6 +36,24 @@ const DecimalField: React.FC<DecimalFieldProps> = ({
     }
   };
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      
+      // only block the wheel if our input currently has focus
+      if (document.activeElement === inputRef.current) {
+        e.preventDefault();
+      }
+    };
+
+    const options: AddEventListenerOptions = { passive: false, capture: true };
+
+    // add as non-passive + capture so preventDefault actually works
+    window.addEventListener("wheel", handleWheel, options);
+    return () => window.removeEventListener("wheel", handleWheel, options);
+  }, []);
+
   return (
     <FormControl required={required} variant="outlined" fullWidth={fullWidth}>
       <InputLabel htmlFor={id} error={!!error}>
@@ -50,6 +68,7 @@ const DecimalField: React.FC<DecimalFieldProps> = ({
         onKeyDown={blockUnwantedKeys}
         error={!!error}
         placeholder={placeholder || "Enter a decimal value"}
+        inputRef={inputRef}
         inputProps={{
           inputMode: "decimal",
           step: "any",
