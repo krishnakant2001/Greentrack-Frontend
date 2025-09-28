@@ -117,3 +117,11 @@ export const SubSection = styled.div`
   display: flex;
   gap: 32px;
 `;
+
+// Create new activity
+
+export const ActivitySection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+`;

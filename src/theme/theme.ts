@@ -160,6 +160,20 @@ const theme = createTheme({
     },
     MuiDialogContentText: { styleOverrides: { root: { color: "#143D60" } } },
     MuiDialogActions: { styleOverrides: { root: { gap: "8px" } } },
+    MuiPopper: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput": { borderColor: "#27667B" },
+          "& .MuiPaper-root": {
+            backgroundColor: "#FFF8DE",
+            borderRadius: "12px",
+            padding: "8px",
+            color: "#143D60",
+            border: "1px solid #27667B",
+          },
+        },
+      },
+    },
   },
 });
 
