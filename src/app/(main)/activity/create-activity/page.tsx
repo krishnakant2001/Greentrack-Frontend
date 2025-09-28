@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivitySection,
   ButtonSection,
@@ -13,13 +13,23 @@ import {
   Title,
   Wrapper,
 } from "../../main.styles";
-import { Button, Divider, SelectChangeEvent, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Divider,
+  SelectChangeEvent,
+  TextField,
+} from "@mui/material";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import DecimalField from "@/components/reusableComponents/DecimalField";
 import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 import { activityCategoryData } from "@/data/activityCategoryData";
 import { DateSelectField } from "@/components/reusableComponents/DateSelectField";
 import { MessageModal } from "@/model/MessageModal";
+import dayjs, { Dayjs } from "dayjs";
+import { getUserProfileDetails } from "@/services/userDetailsService";
+import { createActivity } from "@/services/activityService";
+import { useRouter } from "next/navigation";
 
 const CreateActivity = () => {
   const [fields, setFields] = useState({
@@ -27,17 +37,40 @@ const CreateActivity = () => {
     activitySubCategory: "",
     quantity: "",
     unit: "",
-    activityDate: "",
     location: "",
     description: "",
   });
+
+  const [activityDate, setActivityDate] = useState<Dayjs | null>(null);
 
   const [categoryError, setCategoryError] = useState("");
   const [subCategoryError, setSubCategoryError] = useState("");
   const [quantityError, setQuantityError] = useState("");
   const [unitError, setUnitError] = useState("");
+  const [userId, setUserId] = useState("");
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      setIsLoading(true);
+      try {
+        const res = await getUserProfileDetails();
+        setUserId(res.data?.id);
+      } catch (error) {
+        console.error("Failed to fetch user details", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserDetails();
+  }, []);
 
   const subCatergoryList = () => {
     if (fields.activityCategory) {
@@ -90,6 +123,20 @@ const CreateActivity = () => {
     }
   };
 
+  const handleActivityDateChange = (formattedDate: string) => {
+    setActivityDate(formattedDate ? dayjs(formattedDate) : null);
+  };
+
+  const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFields({ ...fields, location: event.target.value });
+  };
+
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFields({ ...fields, description: event.target.value });
+  };
+
   const handleSelectFieldClick = () => {
     if (!fields.activityCategory) {
       setMessageModalOpen(true);
@@ -99,7 +146,19 @@ const CreateActivity = () => {
     // }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const checkInputFields = () => {
+    if (
+      !fields.activityCategory ||
+      !fields.activitySubCategory ||
+      !fields.quantity ||
+      !fields.unit
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
     console.log("Submitting....");
 
@@ -115,6 +174,47 @@ const CreateActivity = () => {
     if (!fields.unit) {
       setUnitError("Please provide the activity unit");
     }
+
+    if (checkInputFields()) {
+      setIsLoading(true);
+      try {
+        const response = await createActivity(
+          fields.activityCategory,
+          fields.activitySubCategory,
+          fields.quantity,
+          fields.unit,
+          activityDate,
+          fields.location,
+          fields.description,
+          userId
+        );
+
+        // Success handling
+        setSuccessMessage(response.message);
+
+        // Optionally, redirect to login page after a delay
+        setTimeout(() => {
+          router.push("/activity");
+        }, 3000);
+      } catch (error) {
+        // Error handling
+        console.error("Registration error:", error);
+
+        let errorMessage =
+          error instanceof Error ? error.message : "An unknown error occurred";
+
+        if (errorMessage.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else if (errorMessage.includes("Failed to fetch")) {
+          errorMessage =
+            "Network error. Please check your internet connection.";
+        }
+        setApiError(errorMessage);
+      } finally {
+        // Stop Loading
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleCancelButton = () => {
@@ -124,9 +224,10 @@ const CreateActivity = () => {
     setQuantityError("");
     setUnitError("");
   };
-  
+
   return (
     <Container>
+      {isLoading && <div>Loading....</div>}
       <Heading>
         <Title>Create New Activity</Title>
         <Subtitle>
@@ -135,6 +236,16 @@ const CreateActivity = () => {
       </Heading>
       <Divider />
       <Wrapper>
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
         <FormSection onSubmit={handleSubmit} noValidate>
           <ButtonSection>
             <Button variant="outlined" onClick={handleCancelButton}>
@@ -199,20 +310,23 @@ const CreateActivity = () => {
           <ActivitySection>
             <SectionTitle>Additional Details</SectionTitle>
             <SubSection>
-              <DateSelectField />
+              <DateSelectField
+                value={activityDate}
+                onChange={handleActivityDateChange}
+              />
               <TextField
                 id="location"
                 label="Location"
                 value={fields.location}
                 fullWidth
-                // onChange={handleDescriptionChange}
+                onChange={handleLocationChange}
               />
               <TextField
                 id="description"
                 label="Description"
                 value={fields.description}
                 fullWidth
-                // onChange={handleDescriptionChange}
+                onChange={handleDescriptionChange}
               />
             </SubSection>
           </ActivitySection>

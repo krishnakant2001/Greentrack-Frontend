@@ -20,21 +20,21 @@ export const DateSelectField: React.FC<DateSelectFieldProps> = ({
   value,
   onChange,
   label = "Activity Date",
-  required = true,
   fullWidth = true,
   id = "date-input",
   error,
   placeholder,
 }) => {
   return (
-    <FormControl fullWidth={fullWidth} required={required}>
+    <FormControl fullWidth={fullWidth}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
           label={label}
           value={value}
+          format="DD/MM/YYYY"
           maxDate={dayjs()}
           onChange={(newValue) =>
-            onChange?.(newValue ? newValue.format("YYYY-MM-DD") : "")
+            onChange?.(newValue ? newValue.format("YYYY-MM-DDT00:00:00") : "")
           }
           slotProps={{
             textField: {

@@ -1,3 +1,5 @@
+import { JWT_TOKEN } from "./jwtToken";
+
 interface updateUserProfileResponse {
   user?: {
     id: string;
@@ -9,9 +11,6 @@ interface updateUserProfileResponse {
   message?: string;
 }
 
-const token =
-  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGI2NmRlOWVmOGI3ZTAyY2ExNGQ2ZTAiLCJlbWFpbCI6ImtyaXNobmFrYW50QGdtYWlsLmNvbSIsImlhdCI6MTc1ODkxMzMzNywiZXhwIjoxNzYxNTA1MzM3fQ.ujaR1HygZvKQLbiHi_cKfzq_R2Ea3WFInjClqpem0-37DRLogqQXZCH1zMcDlCGk";
-
 export const getUserProfileDetails = async () => {
   const response = await fetch(
     "http://localhost:8080/api/users/getProfileDetails",
@@ -19,7 +18,7 @@ export const getUserProfileDetails = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${JWT_TOKEN}`,
       },
     }
   );
@@ -44,7 +43,7 @@ export const updateUserProfileDetails = async (
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${JWT_TOKEN}`,
       },
       body: JSON.stringify({
         firstName,
@@ -65,7 +64,6 @@ export const updateUserProfileDetails = async (
   return data;
 };
 
-
 export const deleteUserProfile = async () => {
   const response = await fetch(
     "http://localhost:8080/api/users/deleteProfile",
@@ -73,7 +71,7 @@ export const deleteUserProfile = async () => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${JWT_TOKEN}`,
       },
     }
   );
@@ -83,4 +81,4 @@ export const deleteUserProfile = async () => {
   }
 
   return response.json();
-}
+};

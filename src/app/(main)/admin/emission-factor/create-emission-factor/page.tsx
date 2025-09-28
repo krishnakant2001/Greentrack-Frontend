@@ -27,7 +27,7 @@ import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 import DecimalField from "@/components/reusableComponents/DecimalField";
 import { MessageModal } from "@/model/MessageModal";
 import { useRouter } from "next/navigation";
-import { createEmissionFactor } from "@/services/emissionFactor";
+import { createEmissionFactor } from "@/services/emissionFactorService";
 
 const CreateEmissionFactor = () => {
   const [fields, setFields] = useState({

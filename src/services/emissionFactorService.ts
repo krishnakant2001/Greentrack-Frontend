@@ -22,7 +22,7 @@ export const createEmissionFactor = async (
         category: activityCategory,
         subType: activitySubCategory,
         unit: unit,
-        co2eFactor: co2eFactor,
+        co2eFactor: Number(co2eFactor),
         methodology,
         source,
       }),
