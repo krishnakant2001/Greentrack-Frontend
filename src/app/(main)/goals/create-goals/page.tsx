@@ -23,13 +23,13 @@ import {
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
 import { activityCategoryData } from "@/data/activityCategoryData";
 import { DateSelectField } from "@/components/reusableComponents/DateSelectField";
-import { MessageModal } from "@/model/MessageModal";
 import dayjs, { Dayjs } from "dayjs";
-import { createActivity } from "@/services/activityService";
 import { useRouter } from "next/navigation";
 import { GOAL_PERIODS, GOAL_TYPES } from "@/data/goalData";
+import DecimalField from "@/components/reusableComponents/DecimalField";
+import { createGoal } from "@/services/goalService";
 
-const CreateActivity = () => {
+const CreateGoal = () => {
   const [fields, setFields] = useState({
     goalType: "",
     targetCategory: "",
@@ -39,49 +39,22 @@ const CreateActivity = () => {
     goalDescription: "",
   });
 
-  const [activityDate, setActivityDate] = useState<Dayjs | null>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
   const [goalTypeError, setGoalTypeError] = useState("");
   const [targetCategoryError, setTargetCategoryError] = useState("");
   const [targetValueError, setTargetValueError] = useState("");
   const [goalPeriodError, setGoalPeriodError] = useState("");
   const [goalTitleError, setGoalTitleError] = useState("");
-
-  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [startDateError, setStartDateError] = useState("");
+  const [endDateError, setEndDateError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const router = useRouter();
-
-  //   useEffect(() => {
-  //     const fetchUserDetails = async () => {
-  //       setIsLoading(true);
-  //       try {
-  //         const res = await getUserProfileDetails();
-  //         setUserId(res.data?.id);
-  //       } catch (error) {
-  //         console.error("Failed to fetch user details", error);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     };
-  //     fetchUserDetails();
-  //   }, []);
-
-  //   const subCatergoryList = () => {
-  //     if (fields.activityCategory) {
-  //       return activitySubCategoryData
-  //         .filter((item) => item.category === fields.activityCategory)
-  //         .map((item) => ({ code: item.code, name: item.name }));
-  //     }
-
-  //     return activitySubCategoryData.map((item) => ({
-  //       code: item.code,
-  //       name: item.name,
-  //     }));
-  //   };
 
   const handleSelectGoalType = (event: SelectChangeEvent) => {
     const selectedGoalType = event.target.value;
@@ -99,11 +72,16 @@ const CreateActivity = () => {
     }
   };
 
-  const handleTargetValueChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFields({ ...fields, targetValue: event.target.value });
-    if (event.target.value !== "") {
+  const handleTargetValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const co2emissionTargetValue = event.target.value;
+    setFields({ ...fields, targetValue: co2emissionTargetValue });
+
+    // Validation
+    if (co2emissionTargetValue === "") {
+      setTargetValueError("Please provide co2 emission target value");
+    } else if (Number(co2emissionTargetValue) <= 0) {
+      setTargetValueError("Target value should be greater than 0");
+    } else {
       setTargetValueError("");
     }
   };
@@ -116,33 +94,32 @@ const CreateActivity = () => {
     }
   };
 
-  const handleActivityDateChange = (formattedDate: string) => {
-    setActivityDate(formattedDate ? dayjs(formattedDate) : null);
+  const handleStartDateChange = (formattedDate: string) => {
+    const startDateValue = formattedDate ? dayjs(formattedDate) : null;
+    setStartDate(startDateValue);
+    if (startDateValue) {
+      setStartDateError("");
+    }
   };
 
-  const handleGoalTitleChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleEndDateChange = (formattedDate: string) => {
+    const endDateValue = formattedDate ? dayjs(formattedDate) : null;
+    setEndDate(endDateValue);
+    if (endDateValue) {
+      setEndDateError("");
+    }
+  };
+
+  const handleGoalTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, goalTitle: event.target.value });
     if (event.target.value !== "") {
       setGoalTitleError("");
     }
   };
 
-  const handleGoalDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleGoalDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, goalDescription: event.target.value });
   };
-
-  //   const handleSelectFieldClick = () => {
-  //     if (!fields.activityCategory) {
-  //       setMessageModalOpen(true);
-  //     }
-  //     // if ((event.target as HTMLElement).closest(".MuiModal-root")) {
-  //     //   return;
-  //     // }
-  //   };
 
   const checkInputFields = () => {
     if (
@@ -150,6 +127,8 @@ const CreateActivity = () => {
       !fields.targetCategory ||
       !fields.targetValue ||
       !fields.goalPeriod ||
+      !startDate ||
+      !endDate ||
       !fields.goalTitle
     ) {
       return false;
@@ -161,42 +140,52 @@ const CreateActivity = () => {
     event?.preventDefault();
     console.log("Submitting....");
 
-    // if (!fields.activityCategory) {
-    //   setCategoryError("Please select the activity category");
-    // }
-    // if (!fields.activitySubCategory) {
-    //   setSubCategoryError("Please select the sub category of activity");
-    // }
-    // if (!fields.quantity) {
-    //   setQuantityError("Please provide the activity quantity");
-    // }
-    // if (!fields.unit) {
-    //   setUnitError("Please provide the activity unit");
-    // }
+    if (!fields.goalType) {
+      setGoalTypeError("Please provide goal type");
+    }
+    if (!fields.targetCategory) {
+      setTargetCategoryError("Please provide target category");
+    }
+    if (!fields.targetValue) {
+      setTargetValueError("Please provide co2 emssion target value");
+    }
+    if (!fields.goalPeriod) {
+      setGoalPeriodError("Please provide goal period");
+    }
+    if (!startDate) {
+      setStartDateError("Start Date is required");
+    }
+    if (!endDate) {
+      setEndDateError("End date is required");
+    }
+    if (!fields.goalTitle) {
+      setGoalTitleError("Please provide the goal title");
+    }
 
     if (checkInputFields()) {
       setIsLoading(true);
       try {
-        // const response = await createActivity(
-        //   fields.goalType,
-        //   fields.targetCategory,
-        //   fields.targetValue,
-        //   fields.goalPeriod,
-        //   activityDate,
-        //   fields.goalTitle,
-        //   fields.goalDescription
-        // );
+        const response = await createGoal(
+          fields.goalType,
+          fields.targetCategory,
+          fields.targetValue,
+          fields.goalPeriod,
+          startDate,
+          endDate,
+          fields.goalTitle,
+          fields.goalDescription
+        );
 
         // Success handling
-        // setSuccessMessage(response.message);
+        setSuccessMessage(response.message);
 
         // Optionally, redirect to login page after a delay
         setTimeout(() => {
-          router.push("/activity");
+          router.push("/goals");
         }, 3000);
       } catch (error) {
         // Error handling
-        console.error("Registration error:", error);
+        console.error(" error:", error);
 
         let errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred";
@@ -221,6 +210,8 @@ const CreateActivity = () => {
     setTargetCategoryError("");
     setTargetValueError("");
     setGoalPeriodError("");
+    setStartDateError("");
+    setEndDateError("");
     setGoalTitleError("");
   };
 
@@ -276,18 +267,17 @@ const CreateActivity = () => {
                 error={targetCategoryError}
                 options={activityCategoryData}
               />
-              <TextField
+            </SubSection>
+            <SubSection>
+              <DecimalField
                 required
                 id="targetValue"
-                label="Target Value"
+                label="Co2 Emission Target value"
                 value={fields.targetValue}
                 onChange={handleTargetValueChange}
                 fullWidth
-                error={!!targetValueError}
+                error={targetValueError}
               />
-            </SubSection>
-
-            <SubSection>
               <InputSelectField
                 required
                 id="goalPeriod"
@@ -298,17 +288,33 @@ const CreateActivity = () => {
                 error={goalPeriodError}
                 options={GOAL_PERIODS}
               />
+            </SubSection>
+          </ActivitySection>
+          <DividerWithMargin />
+          <ActivitySection>
+            <SectionTitle>Goal Duration</SectionTitle>
+            <SubSection>
               <DateSelectField
-                //start date
-                value={activityDate}
-                onChange={handleActivityDateChange}
+                label="Start Date"
+                minDate={dayjs()}
+                maxDate={endDate && dayjs(endDate)}
+                value={startDate}
+                onChange={handleStartDateChange}
+                error={startDateError}
               />
               <DateSelectField
-                //end date
-                value={activityDate}
-                onChange={handleActivityDateChange}
+                label="End Date"
+                minDate={startDate ? dayjs(startDate) : dayjs()}
+                value={endDate}
+                onChange={handleEndDateChange}
+                error={endDateError}
               />
             </SubSection>
+          </ActivitySection>
+          <ActivitySection></ActivitySection>
+          <DividerWithMargin />
+          <ActivitySection>
+            <SectionTitle>Goal Summary</SectionTitle>
             <SubSection>
               <TextField
                 required
@@ -330,21 +336,10 @@ const CreateActivity = () => {
               />
             </SubSection>
           </ActivitySection>
-          <DividerWithMargin />
-          <ActivitySection>
-            <SectionTitle>Additional Details</SectionTitle>
-            <SubSection></SubSection>
-          </ActivitySection>
-          <MessageModal
-            open={messageModalOpen}
-            handleClose={() => setMessageModalOpen(false)}
-            title="Select Activity Category First"
-            description="Please choose an Activity Category first. Subcategory options depend on your selection."
-          />
         </FormSection>
       </Wrapper>
     </Container>
   );
 };
 
-export default CreateActivity;
+export default CreateGoal;

@@ -36,7 +36,7 @@ export const ButtonSection = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  padding: 0 16px;
+  padding: 4px 16px;
 `;
 
 export const LeftSection = styled.div`

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { FormControl } from "@mui/material";
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -14,6 +14,8 @@ interface DateSelectFieldProps {
   id?: string;
   error?: string;
   placeholder?: string;
+  minDate?: Dayjs | null;
+  maxDate?: Dayjs | null;
 }
 
 export const DateSelectField: React.FC<DateSelectFieldProps> = ({
@@ -24,17 +26,20 @@ export const DateSelectField: React.FC<DateSelectFieldProps> = ({
   id = "date-input",
   error,
   placeholder,
+  minDate,
+  maxDate
 }) => {
   return (
-    <FormControl fullWidth={fullWidth}>
+    <FormControl fullWidth={fullWidth} required>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
-          label={label}
+          label={`${label} *`}
           value={value}
           format="DD/MM/YYYY"
-          maxDate={dayjs()}
+          minDate={minDate ? minDate : undefined}
+          maxDate={maxDate ? maxDate : undefined}
           onChange={(newValue) =>
-            onChange?.(newValue ? newValue.format("YYYY-MM-DDT00:00:00") : "")
+            onChange?.(newValue ? newValue.format("YYYY-MM-DD") : "")
           }
           slotProps={{
             textField: {

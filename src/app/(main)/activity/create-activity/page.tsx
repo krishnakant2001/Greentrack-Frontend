@@ -47,6 +47,8 @@ const CreateActivity = () => {
   const [subCategoryError, setSubCategoryError] = useState("");
   const [quantityError, setQuantityError] = useState("");
   const [unitError, setUnitError] = useState("");
+  const [activityDateError, setActivityDateError] = useState("");
+
   const [userId, setUserId] = useState("");
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
@@ -124,16 +126,19 @@ const CreateActivity = () => {
   };
 
   const handleActivityDateChange = (formattedDate: string) => {
-    setActivityDate(formattedDate ? dayjs(formattedDate) : null);
+    const activityDateValue = formattedDate ? dayjs(formattedDate) : null;
+    setActivityDate(activityDateValue);
+
+    if (activityDateValue) {
+      setActivityDateError("");
+    }
   };
 
   const handleLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, location: event.target.value });
   };
 
-  const handleDescriptionChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFields({ ...fields, description: event.target.value });
   };
 
@@ -173,6 +178,9 @@ const CreateActivity = () => {
     }
     if (!fields.unit) {
       setUnitError("Please provide the activity unit");
+    }
+    if(!activityDate) {
+      setActivityDateError("Activity Date is required");
     }
 
     if (checkInputFields()) {
@@ -223,6 +231,7 @@ const CreateActivity = () => {
     setSubCategoryError("");
     setQuantityError("");
     setUnitError("");
+    setActivityDateError("");
   };
 
   return (
@@ -311,8 +320,10 @@ const CreateActivity = () => {
             <SectionTitle>Additional Details</SectionTitle>
             <SubSection>
               <DateSelectField
+                maxDate={dayjs()}
                 value={activityDate}
                 onChange={handleActivityDateChange}
+                error={activityDateError}
               />
               <TextField
                 id="location"

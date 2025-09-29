@@ -11,10 +11,9 @@ const generateClientIdempotencyKey = (
 ) => {
   const str = `${userId}-${activityCategory}-${activitySubCategory}-${quantity}-${unit}`;
   const key = createHash("sha256").update(str).digest("hex");
-  
+
   return key.length <= 50 ? key : key.slice(0, 50);
 };
-
 
 export const createActivity = async (
   activityCategory: string,
@@ -26,8 +25,8 @@ export const createActivity = async (
   description: string,
   userId: string
 ) => {
-  
-    const clientIdempotencyKey = generateClientIdempotencyKey(
+
+  const clientIdempotencyKey = generateClientIdempotencyKey(
     activityCategory,
     activitySubCategory,
     quantity,
@@ -58,5 +57,4 @@ export const createActivity = async (
   }
 
   return await response.json();
-
 };
