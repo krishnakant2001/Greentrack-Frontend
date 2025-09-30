@@ -1,0 +1,197 @@
+"use client";
+import * as React from "react";
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  TableSortLabel,
+  Paper,
+  Typography,
+} from "@mui/material";
+import { visuallyHidden } from "@mui/utils";
+
+// 1️⃣ Define Activity interface
+interface Activity {
+  id: string;
+  userId: string;
+  category: string;
+  subType: string;
+  quantity: number;
+  unit: string;
+  co2eEmissions: number;
+  emissionFactorRef: string;
+  description: string;
+  activityDate: string;
+  location: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 2️⃣ Define sorting type
+type Order = "asc" | "desc";
+
+// 3️⃣ Sorting helper
+function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
+  if (b[orderBy] < a[orderBy]) return -1;
+  if (b[orderBy] > a[orderBy]) return 1;
+  return 0;
+}
+
+function getComparator<Key extends keyof Activity>(
+  order: Order,
+  orderBy: Key
+): (a: Activity, b: Activity) => number {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+// 4️⃣ Head cells
+interface HeadCell {
+  id: keyof Activity;
+  label: string;
+  numeric: boolean;
+}
+
+const headCells: readonly HeadCell[] = [
+  { id: "activityDate", label: "Date", numeric: false },
+  { id: "category", label: "Category", numeric: false },
+  { id: "subType", label: "Sub-Type", numeric: false },
+  { id: "quantity", label: "Quantity", numeric: true },
+  { id: "co2eEmissions", label: "CO₂e Emissions", numeric: true },
+  { id: "location", label: "Location", numeric: false },
+  { id: "description", label: "Description", numeric: false },
+];
+
+// 5️⃣ Table head component
+interface EnhancedTableHeadProps {
+  order: Order;
+  orderBy: keyof Activity;
+  onRequestSort: (
+    event: React.MouseEvent<unknown>,
+    property: keyof Activity
+  ) => void;
+}
+
+function EnhancedTableHead(props: EnhancedTableHeadProps) {
+  const { order, orderBy, onRequestSort } = props;
+
+  const createSortHandler =
+    (property: keyof Activity) => (event: React.MouseEvent<unknown>) => {
+      onRequestSort(event, property);
+    };
+
+  return (
+    <TableHead>
+      <TableRow>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={"center"}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : "asc"}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+// 6️⃣ Main table component
+interface ActivitiesTableProps {
+  activities: Activity[];
+}
+
+export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
+  const [order, setOrder] = React.useState<Order>("asc");
+  const [orderBy, setOrderBy] = React.useState<keyof Activity>("activityDate");
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: keyof Activity
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Sorting & pagination
+  const visibleRows = React.useMemo(() => {
+    return [...activities]
+      .sort(getComparator(order, orderBy))
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [activities, order, orderBy, page, rowsPerPage]);
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        User Activities
+      </Typography>
+      <Paper sx={{ width: "100%", mb: 2 }}>
+        <TableContainer>
+          <Table sx={{ minWidth: 750 }} size="medium">
+            <EnhancedTableHead
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+            />
+            <TableBody>
+              {visibleRows.map((row) => (
+                <TableRow key={row.id} hover>
+                  <TableCell>
+                    {new Date(row.activityDate).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{row.category}</TableCell>
+                  <TableCell>{row.subType}</TableCell>
+                  <TableCell align="center">{`${row.quantity} ${row.unit}`}</TableCell>
+                  <TableCell align="center">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
+                  <TableCell>{row.location || "-"}</TableCell>
+                  <TableCell>{row.description || "-"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={activities.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
+  );
+}
