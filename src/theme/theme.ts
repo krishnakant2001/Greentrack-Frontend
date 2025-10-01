@@ -174,6 +174,108 @@ const theme = createTheme({
         },
       },
     },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFF8DE",
+          boxShadow: "none",
+        },
+      },
+    },
+    MuiTableContainer: {
+      styleOverrides: {
+        root: {
+          borderRadius: "12px",
+          border: "1.5px solid #27667B",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
+          overflow: "hidden"
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFF8DE",
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          "& .MuiTableCell-head": {
+            fontWeight: 600,
+            color: "#143D60",
+            borderBottom: "1.5px solid #27667B",
+          },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: "1px solid #27667b40",
+          color: "#143D60",
+        },
+        head: {
+          fontWeight: 600,
+          color: "#143D60",
+          backgroundColor: "#D0E8C5",
+        },
+      },
+    },
+    MuiTableRow: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#FFF8DE",
+          "&:hover": {
+            backgroundColor: "#F8F7BA",
+            cursor: "pointer",
+          },
+          "&.MuiTableRow-hover:hover": {
+            backgroundColor: "#F8F7BA",
+          },
+        },
+      },
+    },
+    MuiTableSortLabel: {
+      styleOverrides: {
+        root: {
+          color: "#143D60",
+          "&:hover": {
+            color: "#27667B",
+          },
+          "&.Mui-active": {
+            color: "#27667B",
+          },
+        },
+        icon: {
+          color: "#27667B !important",
+        },
+      },
+    },
+    MuiTablePagination: {
+      styleOverrides: {
+        root: {
+          color: "#143D60", // Dark blue text
+          borderTop: "1px solid #D0E8C5", // Pale green border
+        },
+        selectIcon: {
+          color: "#27667B", // Deep teal dropdown icon
+        },
+        actions: {
+          color: "#27667B", // Deep teal navigation buttons
+          "& .MuiIconButton-root": {
+            color: "#27667B",
+            "&:hover": {
+              backgroundColor: "rgba(39, 102, 123, 0.1)",
+            },
+            "&.Mui-disabled": {
+              color: "#D0E8C5",
+            },
+          },
+        },
+      },
+    },
   },
 });
 

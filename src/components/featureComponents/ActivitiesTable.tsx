@@ -11,7 +11,6 @@ import {
   TablePagination,
   TableSortLabel,
   Paper,
-  Typography,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 
@@ -65,7 +64,7 @@ const headCells: readonly HeadCell[] = [
   { id: "quantity", label: "Quantity", numeric: true },
   { id: "co2eEmissions", label: "CO₂e Emissions", numeric: true },
   { id: "location", label: "Location", numeric: false },
-  { id: "description", label: "Description", numeric: false },
+  // { id: "description", label: "Description", numeric: false },
 ];
 
 // 5️⃣ Table head component
@@ -92,7 +91,7 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={"center"}
+            align={"left"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -154,9 +153,6 @@ export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        User Activities
-      </Typography>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
           <Table sx={{ minWidth: 750 }} size="medium">
@@ -169,14 +165,13 @@ export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
               {visibleRows.map((row) => (
                 <TableRow key={row.id} hover>
                   <TableCell>
-                    {new Date(row.activityDate).toLocaleDateString()}
+                    {new Date(row.activityDate).toLocaleDateString("en-GB")}
                   </TableCell>
                   <TableCell>{row.category}</TableCell>
                   <TableCell>{row.subType}</TableCell>
-                  <TableCell align="center">{`${row.quantity} ${row.unit}`}</TableCell>
-                  <TableCell align="center">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
+                  <TableCell align="left">{`${row.quantity} ${row.unit}`}</TableCell>
+                  <TableCell align="left">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
                   <TableCell>{row.location || "-"}</TableCell>
-                  <TableCell>{row.description || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
