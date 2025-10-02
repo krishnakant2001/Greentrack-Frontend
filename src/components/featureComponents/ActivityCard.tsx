@@ -22,15 +22,15 @@ interface Activity {
 
 interface ActivityCardProps {
   activity: Activity;
-  onMenuClick?: () => void;
+  onMenuClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const CardContainer = styled.div`
   width: 360px;
   padding: 16px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #55afcd80 0%, #c1f19180 100%);
-  border: 2px solid #143d60;
+  background: linear-gradient(135deg, #93e4fe3e 0%, #c1f19180 100%);
+  border: 2px solid #d0e8c5;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 `;
@@ -50,7 +50,7 @@ const TopSection = styled.div`
 const CategorySection = styled.div``;
 
 const Category = styled.h3`
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 600;
   margin: 0;
   color: #143d60;
@@ -77,11 +77,6 @@ const MenuButton = styled.button`
   cursor: pointer;
   margin-bottom: 8px;
   color: #143d60;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: #2c5f7f;
-  }
 `;
 
 const QuantityText = styled.div`
@@ -95,7 +90,7 @@ const MiddleSection = styled.div`
   text-align: center;
   color: #143d60;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.51);
   border-radius: 8px;
 `;
 
@@ -155,7 +150,7 @@ const ActivityCard = ({ activity, onMenuClick }: ActivityCardProps) => {
             <MenuButton onClick={onMenuClick}>
               <MoreHoriz/>
             </MenuButton>
-            <QuantityText>Quantity: {quantityDisplay}</QuantityText>
+            <QuantityText>{quantityDisplay}</QuantityText>
           </RightSection>
         </TopSection>
 

@@ -125,3 +125,47 @@ export const ActivitySection = styled.div`
   flex-direction: column;
   gap: 32px;
 `;
+
+
+// activiy page
+
+export const ActivityTopSection = styled.div`
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const ViewSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  padding: 4px 16px;
+`
+
+export const ViewButton = styled.div<{ $active?: boolean }>`
+  padding: 8px 12px;
+  cursor: pointer;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  position: relative;
+  font-weight: 500;
+  color: ${({ $active }) => ($active ? "#143c60" : "#333")};
+  background-color: ${({ $active }) => $active && "#bbe59140"};
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: ${({ $active }) => ($active ? "100%" : "0")};
+    height: 2px;
+    background-color: #a0c878;
+    transition: all 0.2s ease;
+    transform: translateX(-50%);
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+`;

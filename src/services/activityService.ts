@@ -58,3 +58,22 @@ export const createActivity = async (
 
   return await response.json();
 };
+
+export const getUserActivities = async () => {
+  const response = await fetch(
+    "http://localhost:8080/api/activities/getUserActivities",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT_TOKEN}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}

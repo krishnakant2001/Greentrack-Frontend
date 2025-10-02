@@ -13,6 +13,8 @@ import {
   Paper,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
+import { activityCategoryData } from "@/data/activityCategoryData";
+import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 
 interface Activity {
   id: string;
@@ -115,6 +117,16 @@ const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const getCategoryName = (code: string) => {
+    const category = activityCategoryData.find((c) => c.code === code);
+    return category ? category.name : code;
+  };
+
+  const getSubCategoryName = (code: string) => {
+    const subCategory = activitySubCategoryData.find((sc) => sc.code === code);
+    return subCategory ? subCategory.name : code;
+  };
+
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Activity) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -143,7 +155,14 @@ const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
     <Box sx={{ width: "100%" }}>
       <Paper sx={{ width: "100%", mb: 2 }}>
         <TableContainer>
-          <Table sx={{ minWidth: 750 }} size="medium">
+          <Table
+            sx={{
+              minWidth: 750,
+              "& td": { fontSize: "15px" }, // all body cells
+              "& th": { fontSize: "16px", fontWeight: 600 }, // all header cells
+            }}
+            size="medium"
+          >
             <EnhancedTableHead
               order={order}
               orderBy={orderBy}
@@ -155,8 +174,8 @@ const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
                   <TableCell>
                     {new Date(row.activityDate).toLocaleDateString("en-GB")}
                   </TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell>{row.subType}</TableCell>
+                  <TableCell>{getCategoryName(row.category)}</TableCell>
+                  <TableCell>{getSubCategoryName(row.subType)}</TableCell>
                   <TableCell align="right">{`${row.quantity} ${row.unit}`}</TableCell>
                   <TableCell align="right">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
                   <TableCell>{row.location || "-"}</TableCell>
