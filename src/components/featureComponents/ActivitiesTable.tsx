@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Table,
@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 
-// 1️⃣ Define Activity interface
 interface Activity {
   id: string;
   userId: string;
@@ -31,10 +30,14 @@ interface Activity {
   updatedAt: string;
 }
 
-// 2️⃣ Define sorting type
+interface ActivityHeadCell {
+  id: keyof Activity;
+  label: string;
+  numeric: boolean;
+}
+
 type Order = "asc" | "desc";
 
-// 3️⃣ Sorting helper
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
@@ -50,53 +53,42 @@ function getComparator<Key extends keyof Activity>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// 4️⃣ Head cells
-interface HeadCell {
-  id: keyof Activity;
-  label: string;
-  numeric: boolean;
-}
-
-const headCells: readonly HeadCell[] = [
+const activityHeadCells: readonly ActivityHeadCell[] = [
   { id: "activityDate", label: "Date", numeric: false },
   { id: "category", label: "Category", numeric: false },
   { id: "subType", label: "Sub-Type", numeric: false },
   { id: "quantity", label: "Quantity", numeric: true },
   { id: "co2eEmissions", label: "CO₂e Emissions", numeric: true },
   { id: "location", label: "Location", numeric: false },
-  // { id: "description", label: "Description", numeric: false },
 ];
 
-// 5️⃣ Table head component
 interface EnhancedTableHeadProps {
-  order: Order;
-  orderBy: keyof Activity;
-  onRequestSort: (
-    event: React.MouseEvent<unknown>,
-    property: keyof Activity
-  ) => void;
+  order: Order | null;
+  orderBy: keyof Activity | null;
+  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Activity) => void;
 }
 
-function EnhancedTableHead(props: EnhancedTableHeadProps) {
+const EnhancedTableHead = (props: EnhancedTableHeadProps) => {
   const { order, orderBy, onRequestSort } = props;
 
-  const createSortHandler =
-    (property: keyof Activity) => (event: React.MouseEvent<unknown>) => {
-      onRequestSort(event, property);
-    };
+  const createSortHandler = (property: keyof Activity) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    onRequestSort(event, property);
+  };
 
   return (
     <TableHead>
       <TableRow>
-        {headCells.map((headCell) => (
+        {activityHeadCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={"left"}
-            sortDirection={orderBy === headCell.id ? order : false}
+            align={headCell.numeric ? "right" : "left"}
+            sortDirection={
+              orderBy === headCell.id ? order ?? undefined : undefined
+            }
           >
             <TableSortLabel
               active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
+              direction={orderBy === headCell.id ? order || "asc" : "asc"}
               onClick={createSortHandler(headCell.id)}
             >
               {headCell.label}
@@ -113,21 +105,17 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
   );
 }
 
-// 6️⃣ Main table component
 interface ActivitiesTableProps {
   activities: Activity[];
 }
 
-export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Activity>("activityDate");
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
+  const [order, setOrder] = useState<Order | null>(null);
+  const [orderBy, setOrderBy] = useState<keyof Activity | null>(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: keyof Activity
-  ) => {
+  const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Activity) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -137,18 +125,18 @@ export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   // Sorting & pagination
-  const visibleRows = React.useMemo(() => {
-    return [...activities]
-      .sort(getComparator(order, orderBy))
-      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const visibleRows = useMemo(() => {
+    let sorted = [...activities];
+    if (order && orderBy) {
+      sorted = sorted.sort(getComparator(order, orderBy));
+    }
+    return sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [activities, order, orderBy, page, rowsPerPage]);
 
   return (
@@ -163,14 +151,14 @@ export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
             />
             <TableBody>
               {visibleRows.map((row) => (
-                <TableRow key={row.id} hover>
+                <TableRow key={row.id} hover onClick={(e) => console.log(e)}>
                   <TableCell>
                     {new Date(row.activityDate).toLocaleDateString("en-GB")}
                   </TableCell>
                   <TableCell>{row.category}</TableCell>
                   <TableCell>{row.subType}</TableCell>
-                  <TableCell align="left">{`${row.quantity} ${row.unit}`}</TableCell>
-                  <TableCell align="left">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
+                  <TableCell align="right">{`${row.quantity} ${row.unit}`}</TableCell>
+                  <TableCell align="right">{`${row.co2eEmissions} kg CO₂e`}</TableCell>
                   <TableCell>{row.location || "-"}</TableCell>
                 </TableRow>
               ))}
@@ -190,3 +178,5 @@ export default function ActivitiesTable({ activities }: ActivitiesTableProps) {
     </Box>
   );
 }
+
+export default ActivitiesTable;
