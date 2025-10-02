@@ -108,7 +108,7 @@ const EnhancedTableHead = (props: EnhancedTableHeadProps) => {
 }
 
 interface ActivitiesTableProps {
-  activities: Activity[];
+  activities?: Activity[];
 }
 
 const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
@@ -144,7 +144,8 @@ const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
 
   // Sorting & pagination
   const visibleRows = useMemo(() => {
-    let sorted = [...activities];
+    const list = activities ?? [];
+    let sorted = [...list];
     if (order && orderBy) {
       sorted = sorted.sort(getComparator(order, orderBy));
     }
@@ -187,7 +188,7 @@ const ActivitiesTable = ({ activities }: ActivitiesTableProps) => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={activities.length}
+          count={activities ? activities.length : 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

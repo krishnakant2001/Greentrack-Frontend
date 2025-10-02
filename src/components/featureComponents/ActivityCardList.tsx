@@ -4,7 +4,6 @@ import { Menu, MenuItem } from "@mui/material";
 import ActivityCard from "./ActivityCard";
 import styled from "styled-components";
 
-
 interface Activity {
   id: string;
   userId: string;
@@ -22,16 +21,20 @@ interface Activity {
 }
 
 interface ActivitiesListProps {
-  activities: Activity[];
+  activities?: Activity[];
+  onCardClick: () => void;
 }
 
 const ActivityCardContainer = styled.div`
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-`
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+`;
 
-const ActivityCardList = ({ activities }: ActivitiesListProps) => {
+const ActivityCardList: React.FC<ActivitiesListProps> = ({
+  activities,
+  onCardClick,
+}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
 
@@ -49,6 +52,7 @@ const ActivityCardList = ({ activities }: ActivitiesListProps) => {
   };
 
   const handleDetails = () => {
+    onCardClick();
     console.log("Details", selectedActivity);
     handleMenuClose();
   };
@@ -63,10 +67,9 @@ const ActivityCardList = ({ activities }: ActivitiesListProps) => {
     handleMenuClose();
   };
 
-
   return (
     <ActivityCardContainer>
-      {activities.map((activity) => (
+      {activities?.map((activity) => (
         <ActivityCard
           key={activity.id}
           activity={activity}
@@ -88,6 +91,6 @@ const ActivityCardList = ({ activities }: ActivitiesListProps) => {
       </Menu>
     </ActivityCardContainer>
   );
-}
+};
 
 export default ActivityCardList;
