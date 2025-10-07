@@ -1,5 +1,3 @@
-import { JWT_TOKEN } from "./jwtToken";
-
 interface updateUserProfileResponse {
   user?: {
     id: string;
@@ -11,7 +9,7 @@ interface updateUserProfileResponse {
   message?: string;
 }
 
-export const getUserProfileDetails = async () => {
+export const getUserProfileDetails = async (JWT_TOKEN: string) => {
   const response = await fetch(
     "http://localhost:8080/api/users/getProfileDetails",
     {
@@ -34,8 +32,9 @@ export const updateUserProfileDetails = async (
   firstName: string,
   lastName: string,
   region: string,
+  JWT_TOKEN: string,
   currentPswd?: string,
-  newPswd?: string
+  newPswd?: string,
 ): Promise<updateUserProfileResponse> => {
   const response = await fetch(
     "http://localhost:8080/api/users/updateProfileDetails",
@@ -64,7 +63,7 @@ export const updateUserProfileDetails = async (
   return data;
 };
 
-export const deleteUserProfile = async () => {
+export const deleteUserProfile = async (JWT_TOKEN: string) => {
   const response = await fetch(
     "http://localhost:8080/api/users/deleteProfile",
     {

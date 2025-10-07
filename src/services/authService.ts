@@ -1,9 +1,7 @@
 interface LoginResponse {
-  token?: string;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
+  data?: {
+    token: string;
+    refreshToken: string;
   };
   message?: string;
 }

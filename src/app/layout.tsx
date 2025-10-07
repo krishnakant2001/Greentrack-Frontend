@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { StyledEngineProvider } from "@mui/material";
 import StyledComponentsRegistry from "./StyledComponentRegistry";
+import ReduxProvider from "@/configs/ReduxProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${nunito.variable}`}>
-        <StyledEngineProvider injectFirst>
-          <StyledComponentsRegistry>
-            <ThemeRegistry>{children}</ThemeRegistry>
-          </StyledComponentsRegistry>
-        </StyledEngineProvider>
+        <ReduxProvider>
+          <StyledEngineProvider injectFirst>
+            <StyledComponentsRegistry>
+              <ThemeRegistry>{children}</ThemeRegistry>
+            </StyledComponentsRegistry>
+          </StyledEngineProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

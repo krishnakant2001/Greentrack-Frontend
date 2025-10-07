@@ -42,6 +42,8 @@ import {
 import { DecisionModal } from "@/model/DecisionModal";
 import { MessageModal } from "@/model/MessageModal";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const UserDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -73,10 +75,14 @@ const UserDetails = () => {
 
   const router = useRouter();
 
+  const jwtToken = useSelector(
+    (state: RootState) => state.jwtToken
+  );
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await getUserProfileDetails();
+        const res = await getUserProfileDetails(jwtToken);
 
         setFields({
           email: res.data?.email || "",
@@ -94,7 +100,7 @@ const UserDetails = () => {
       }
     };
     fetchUserDetails();
-  }, [refreshKey]);
+  }, [refreshKey, jwtToken]);
 
   const handleTextFieldClick = () => {
     if (!isEditing) {
@@ -156,7 +162,7 @@ const UserDetails = () => {
       console.log("User confirmed account deletion");
       setIsLoading(true);
       try {
-        const deleteUserProfileResponse = await deleteUserProfile();
+        const deleteUserProfileResponse = await deleteUserProfile(jwtToken);
         setDeleteMessage(deleteUserProfileResponse.data);
 
         setTimeout(() => {
@@ -243,8 +249,9 @@ const UserDetails = () => {
           fields.firstName,
           fields.lastName,
           fields.region,
+          jwtToken,
           fields.currentPswd,
-          fields.newPswd
+          fields.newPswd,
         );
 
         console.log(

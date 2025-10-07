@@ -1,6 +1,7 @@
 "use client";
 import { Alert, Button, Divider, Link, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Container,
   Disclaimer,
@@ -19,10 +20,12 @@ import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/services/authService";
 import { validateEmail, validatePswd } from "@/utils/validations";
+import { setJwtToken } from "@/store/features/slices/authSlice";
 
 const Login = () => {
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [pswd, setPswd] = useState("");
@@ -87,12 +90,12 @@ const Login = () => {
         setSuccessMessage("Login successful! Redirecting...");
 
         // Store token in localStorage (or use a more secure method)
-        if (response.token) {
-          localStorage.setItem("authToken", response.token);
+        if (response.data) {
+          dispatch(setJwtToken(response.data.token));
           // Store user data if needed
-          if (response.user) {
-            localStorage.setItem("user", JSON.stringify(response.user));
-          }
+          // if (response.user) {
+          //   localStorage.setItem("user", JSON.stringify(response.user));
+          // }
         }
 
         // Redirect to dashboard or home page after a short delay
