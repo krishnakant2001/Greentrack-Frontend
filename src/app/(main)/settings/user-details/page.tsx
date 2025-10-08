@@ -76,7 +76,7 @@ const UserDetails = () => {
   const router = useRouter();
 
   const jwtToken = useSelector(
-    (state: RootState) => state.jwtToken
+    (state: RootState) => state.auth.jwtToken
   );
 
   useEffect(() => {
