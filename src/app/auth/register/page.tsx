@@ -154,15 +154,22 @@ const Register = () => {
           fields.region
         );
 
-        console.log("Registration response:", response);
+        console.log("Initiate registration response:", response);
 
         // Success handling
-        setSuccessMessage("Registration successful!");
+        setSuccessMessage("OTP sent, Please check once");
 
+        if (response.data?.email) {
+          localStorage.setItem("Email", response.data.email);
+          router.push("/auth/otp");
+        } else {
+          console.error("Email not found in response:", response.data);
+        }
+        
         // Optionally, redirect to login page after a delay
-        setTimeout(() => {
-          router.push("/auth/login");
-        }, 3000);
+        // setTimeout(() => {
+        //   router.push("/auth/login");
+        // }, 3000);
 
       } catch (error) {
         // Error handling

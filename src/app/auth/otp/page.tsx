@@ -13,12 +13,20 @@ import {
 } from "../auth.styles";
 import { Button, Link, Typography } from "@mui/material";
 import PasswordField from "@/components/reusableComponents/PasswordField";
+import { verifyOtpAndRegisterUser } from "@/services/verifyOtpService";
+import { useRouter } from "next/navigation";
 
 const OtpValidation = () => {
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const [timer, setTimer] = useState(60);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -51,14 +59,58 @@ const OtpValidation = () => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (otp === "" || !validateOtp(otp)) {
       setOtpError("Please enter a valid 6-digit OTP.");
-    } else {
-      // Proceed with form submission
-      console.log("Form submitted with OTP:", otp);
+      return;
+    }
+
+    const email = localStorage.getItem("Email");
+
+    if (!email) {
+      console.error("Email not found");
+      router.push("/auth/register");
+      return;
+    }
+
+    // Start Loading
+    setIsLoading(true);
+    
+    try {
+      // Call register API
+      const response = await verifyOtpAndRegisterUser(
+        email,
+        otp
+      );
+
+      console.log("Verification and Registration Done:", response);
+
+      // Success handling
+      setSuccessMessage("User registration successfull");
+
+      // Optionally, redirect to login page after a delay
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 3000);
+
+    } catch (error) {
+      // Error handling
+      console.error("Registration error:", error);
+
+      let errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+
+      if (errorMessage.includes("500")) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (errorMessage.includes("Failed to fetch")) {
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+      setApiError(errorMessage);
+    } finally {
+      // Stop Loading
+      setIsLoading(false);
     }
   };
 

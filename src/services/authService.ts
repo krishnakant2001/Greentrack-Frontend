@@ -6,6 +6,13 @@ interface LoginResponse {
   message?: string;
 }
 
+interface RegistrationOtpResponse {
+  data?: {
+    email: string;
+    message: string;
+  };
+  message?: string;
+}
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   const response = await fetch("http://localhost:8080/api/auth/login", {
     method: "POST",
@@ -38,20 +45,23 @@ export const registerUser = async (
   email: string,
   password: string,
   region: string
-): Promise<{ message: string }> => {
-  const response = await fetch("http://localhost:8080/api/auth/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      firstName,
-      lastName,
-      email,
-      password,
-      region,
-    }),
-  });
+): Promise<RegistrationOtpResponse> => {
+  const response = await fetch(
+    "http://localhost:8080/api/auth/initiate-registration",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        region,
+      }),
+    }
+  );
 
   const data = await response.json();
 
