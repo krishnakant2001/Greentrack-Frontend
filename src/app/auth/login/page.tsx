@@ -35,6 +35,10 @@ const Login = () => {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
     if (validateEmail(event.target.value)) {
@@ -211,7 +215,7 @@ const Login = () => {
         </Separator>
 
         <OAuth>
-          <Button variant="outlined">
+          <Button variant="outlined" onClick={handleGoogleLogin}>
             <FcGoogle size={"32px"} /> &nbsp; Continue with Google
           </Button>
         </OAuth>
