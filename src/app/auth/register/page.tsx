@@ -1,34 +1,31 @@
 "use client";
+
 import React, { useState } from "react";
 import {
-  ButtonSection,
-  Container,
-  Disclaimer,
-  FormSection,
-  Section,
-  StyledLink,
-  TextSection,
-  Title,
-  Wrapper,
-} from "../auth.styles";
-import {
-  Alert,
-  Button,
-  Link,
-  SelectChangeEvent,
+  Box,
   TextField,
+  Button,
   Typography,
+  Link,
+  InputAdornment,
+  IconButton,
+  Divider,
+  MenuItem,
+  Alert,
 } from "@mui/material";
-import PasswordField from "@/components/reusableComponents/PasswordField";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import InputSelectField from "@/components/reusableComponents/InputSelectField";
-import { validateEmail, validatePswd } from "@/utils/validations";
+import { EarthIllustration } from "@/components/illustrations";
+import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
 import { regionData } from "@/data/regionData";
+import { validateEmail, validatePswd } from "@/utils/validations";
 import { registerUser } from "@/services/authService";
 
 const Register = () => {
-
   const router = useRouter();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [fields, setFields] = useState({
     firstName: "",
@@ -88,7 +85,7 @@ const Register = () => {
     }
   };
 
-  const handleRegionChange = (event: SelectChangeEvent) => {
+  const handleRegionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedRegion = event.target.value;
     setFields({ ...fields, region: selectedRegion });
     if (selectedRegion) {
@@ -98,211 +95,343 @@ const Register = () => {
     }
   };
 
-  const checkValidCredentials = () => {
-    let valid = true;
-
-    if (!validateEmail(fields.email)) {
-      setEmailError("Please enter a valid email address.");
-      valid = false;
-    }
-
-    if (!validatePswd(fields.pswd)) {
-      setPswdError("Password must have 6 characters.");
-      valid = false;
-    }
-
-    return valid;
-  };
-
-  const checkInputFields = () => {
-    if(!fields.firstName || !fields.email || !fields.pswd || !fields.confirmPswd || !fields.region) {
-      return false;
-    }
-    return true;
-  }
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Validation
+    let hasError = false;
+
     if (!fields.firstName) {
       setFirstNameError("Please enter your first name.");
+      hasError = true;
     }
     if (!fields.email) {
       setEmailError("Please enter a valid email address.");
+      hasError = true;
+    } else if (!validateEmail(fields.email)) {
+      setEmailError("Please enter a valid email address.");
+      hasError = true;
     }
     if (!fields.pswd) {
       setPswdError("Password must have 6 characters.");
+      hasError = true;
+    } else if (!validatePswd(fields.pswd)) {
+      setPswdError("Password must have 6 characters.");
+      hasError = true;
     }
     if (fields.confirmPswd === "" || fields.confirmPswd !== fields.pswd) {
       setConfirmPswdError("Passwords do not match.");
+      hasError = true;
     }
     if (!fields.region) {
       setRegionError("Please select a region.");
+      hasError = true;
     }
 
-    if (checkValidCredentials() && checkInputFields() && fields.confirmPswd === fields.pswd) {
-      // Start Loading
-      setIsLoading(true);
+    if (hasError) return;
 
-      try {
-        // Call register API
-        const response = await registerUser(
-          fields.firstName,
-          fields.lastName,
-          fields.email,
-          fields.pswd,
-          fields.region
-        );
+    // Start Loading
+    setIsLoading(true);
 
-        console.log("Initiate registration response:", response);
+    try {
+      // Call register API
+      const response = await registerUser(
+        fields.firstName,
+        fields.lastName,
+        fields.email,
+        fields.pswd,
+        fields.region
+      );
 
-        // Success handling
-        setSuccessMessage("OTP sent, Please check once");
+      console.log("Initiate registration response:", response);
 
-        if (response.data?.email) {
-          localStorage.setItem("Email", response.data.email);
+      // Success handling
+      setSuccessMessage("OTP sent, Please check once");
+
+      if (response.data?.email) {
+        localStorage.setItem("Email", response.data.email);
+        setTimeout(() => {
           router.push("/auth/otp");
-        } else {
-          console.error("Email not found in response:", response.data);
-        }
-        
-        // Optionally, redirect to login page after a delay
-        // setTimeout(() => {
-        //   router.push("/auth/login");
-        // }, 3000);
-
-      } catch (error) {
-        // Error handling
-        console.error("Registration error:", error);
-
-        let errorMessage =
-          error instanceof Error ? error.message : "An unknown error occurred";
-
-        if (errorMessage.includes("500")) {
-          errorMessage = "Server error. Please try again later.";
-        } else if (errorMessage.includes("Failed to fetch")) {
-          errorMessage = "Network error. Please check your internet connection.";
-        }
-        setApiError(errorMessage);
-      } finally {
-        // Stop Loading
-        setIsLoading(false);
+        }, 1500);
+      } else {
+        console.error("Email not found in response:", response.data);
       }
 
-      // handle form submission logic here
-      console.log("First Name:", fields.firstName);
-      console.log("Last Name:", fields.lastName);
-      console.log("Email:", fields.email);
-      console.log("Password:", fields.pswd);
-      console.log("Region:", fields.region);
+    } catch (error) {
+      // Error handling
+      console.error("Registration error:", error);
+
+      let errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred";
+
+      if (errorMessage.includes("500")) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (errorMessage.includes("Failed to fetch")) {
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+      setApiError(errorMessage);
+    } finally {
+      // Stop Loading
+      setIsLoading(false);
     }
   };
 
   const handleCancelClicked = () => {
-    router.push("/"); // Navigate to the home page
+    router.push("/");
   };
 
   return (
-    <Container>
-      <Wrapper>
-        <Title>Create an account</Title>
-        <Section>
-          Already have an account?{" "}
-          <StyledLink href="/auth/login">Login</StyledLink>
-        </Section>
-        {/* Success Message */}
-        {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
-          </Alert>
-        )}
+    <>
+      <AuthPageLayout
+        title="Join GreenTrack"
+        subtitle="Create your account and start making a difference"
+        illustration={<EarthIllustration />}
+        illustrationTitle="Make Earth Greener"
+        illustrationSubtitle="Start your journey towards a carbon-neutral lifestyle today"
+        gradientReverse={true}
+        logoSize={55}
+      >
 
-        {/* Error Message */}
-        {apiError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {apiError}
-          </Alert>
-        )}
-        <FormSection onSubmit={handleSubmit} noValidate>
-          <TextSection>
+          {/* Success Message */}
+          {successMessage && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
+
+          {/* Error Message */}
+          {apiError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {apiError}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Box sx={{ display: "flex", gap: 1.5, mb: 1 }}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                value={fields.firstName}
+                onChange={handleFirstNameChange}
+                required
+                autoComplete="given-name"
+                autoFocus
+                error={!!firstNameError}
+                helperText={firstNameError}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    height: '56px',
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                value={fields.lastName}
+                onChange={handleLastNameChange}
+                autoComplete="family-name"
+                sx={{
+                  '& .MuiInputBase-root': {
+                    height: '56px',
+                  },
+                }}
+              />
+            </Box>
+
             <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={fields.email}
+              onChange={handleEmailChange}
               required
-              fullWidth
-              id="first-name"
-              label="First Name"
-              variant="outlined"
-              value={fields.firstName}
-              onChange={handleFirstNameChange}
-              error={!!firstNameError}
-              helperText={firstNameError}
+              autoComplete="email"
+              error={!!emailError}
+              helperText={emailError}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
             />
+
             <TextField
               fullWidth
-              id="last-name"
-              label="Last Name"
-              variant="outlined"
-              value={fields.lastName}
-              onChange={handleLastNameChange}
+              label="Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={fields.pswd}
+              onChange={handlePswdChange}
+              required
+              autoComplete="new-password"
+              error={!!pswdError}
+              helperText={pswdError}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
             />
-          </TextSection>
-          <TextField
-            fullWidth
-            required
-            id="email"
-            label="Email"
-            variant="outlined"
-            type="email"
-            value={fields.email}
-            onChange={handleEmailChange}
-            error={!!emailError}
-            helperText={emailError}
-          />
-          <PasswordField
-            id="password"
-            value={fields.pswd}
-            onChange={handlePswdChange}
-            error={pswdError}
-          />
-          <PasswordField
-            id="confirm-password"
-            label="Confirm Password"
-            value={fields.confirmPswd}
-            onChange={handleConfirmPswdChange}
-            error={confirmPswdError}
-          />
-          <InputSelectField
-            required
-            id="region"
-            label="Region"
-            value={fields.region}
-            onChange={handleRegionChange}
-            error={regionError}
-            options={regionData}
-          />
-          <ButtonSection>
-            <Button variant="outlined" onClick={handleCancelClicked}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained" disabled={isLoading}>
-              {isLoading ? "Registering..." : "Register"}
-            </Button>
-          </ButtonSection>
-        </FormSection>
 
-        <Disclaimer>
-          <Typography variant="body2">
-            By creating this account, you agree to our{" "}
-            <Link
-              component={StyledLink}
-              href={"/auth/terms-and-conditions"}
-              target="_blank"
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={fields.confirmPswd}
+              onChange={handleConfirmPswdChange}
+              required
+              autoComplete="new-password"
+              error={!!confirmPswdError}
+              helperText={confirmPswdError}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
+            />
+
+            <TextField
+              fullWidth
+              select
+              label="Region"
+              name="region"
+              required
+              error={!!regionError}
+              helperText={regionError}
+              value={fields.region}
+              onChange={handleRegionChange}
+              SelectProps={{
+                native: false,
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      bgcolor: 'background.paper',
+                      '& .MuiMenuItem-root': {
+                        px: 2,
+                        py: 1.5,
+                        borderRadius: 1,
+                        mx: 0.5,
+                        '&:hover': {
+                          bgcolor: 'background.hover',
+                        },
+                        '&.Mui-selected': {
+                          bgcolor: 'success.light',
+                          '&:hover': {
+                            bgcolor: 'background.hover',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
             >
-              Terms and Conditions
-            </Link>{" "}
-          </Typography>
-        </Disclaimer>
-      </Wrapper>
-    </Container>
+              <MenuItem value="">
+                <em>Select your region</em>
+              </MenuItem>
+              {regionData.map((option) => (
+                <MenuItem key={option.code} value={option.name}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <Box sx={{ display: "flex", gap: 1.5, mt: 1.5 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={handleCancelClicked}
+                sx={{ py: 0.75 }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "#FFFFFF",
+                  py: 0.75,
+                  "&:hover": {
+                    bgcolor: "primary.dark",
+                    color: "#FFFFFF",
+                  },
+                }}
+              >
+                Register
+              </Button>
+            </Box>
+
+            <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "text.secondary", fontSize: '0.75rem' }}>
+              By creating an account, you agree to our{" "}
+              <Link
+                href="/auth/terms-and-conditions"
+                target="_blank"
+                sx={{ textDecoration: "none" }}
+              >
+                Terms and Conditions
+              </Link>
+            </Typography>
+
+            <Divider sx={{ my: 1.5 }}>OR</Divider>
+
+            <Typography variant="body2" align="center" sx={{ fontSize: '0.875rem' }}>
+              Already have an account?{" "}
+              <Link
+                href="/auth/login"
+                sx={{ textDecoration: "none", fontWeight: 600, color: "secondary.main" }}
+              >
+                Sign In
+              </Link>
+            </Typography>
+          </Box>
+      </AuthPageLayout>
+      <LoadingBackdrop open={isLoading} message="Creating your account..." />
+    </>
   );
 };
 

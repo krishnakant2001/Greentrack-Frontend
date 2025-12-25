@@ -11,7 +11,7 @@ export const createGoal = async (
   goalTitle: string,
   goalDescription: string
 ) => {
-  const response = await fetch("http://localhost:8080/api/goals", {
+  const response = await fetch("http://localhost:8080/api/user/goals", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

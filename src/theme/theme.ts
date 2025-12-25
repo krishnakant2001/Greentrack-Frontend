@@ -1,35 +1,36 @@
 import { createTheme } from "@mui/material/styles";
+import { colors } from "./color";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#27667B", // Deep teal - main brand color
-      light: "#A0C878", // Light green for hover states
-      dark: "#143D60", // Dark blue for pressed states
+      main: colors.primary.main, // Deep blue - main brand color
+      light: colors.primary.light, // Teal - lighter variant
+      dark: colors.primary.dark, // Darker blue
     },
     secondary: {
-      main: "#A0C878", // Light green - secondary actions
-      light: "#D0E8C5", // Very light green
-      dark: "#27667B", // Deep teal
+      main: colors.secondary.main, // Orange/Gold - secondary actions
+      light: colors.secondary.light, // Light yellow-green
+      dark: colors.secondary.dark, // Success green
     },
     background: {
-      default: "#FFF8DE", // Warm cream background
-      paper: "#FFFFFF", // White for cards/papers
+      default: colors.background.default, // Light grey
+      paper: colors.background.paper, // White
     },
     success: {
-      main: "#A0C878", // Light green for success states
+      main: colors.success.main, // Success orange
     },
     info: {
-      main: "#27667B", // Teal for info
+      main: colors.info.main, // Info teal
     },
     // Custom colors you can use throughout your app
     custom: {
-      lightBeige: "#DDEB9D",
-      lightGreen: "#A0C878",
-      deepTeal: "#27667B",
-      darkBlue: "#143D60",
-      paleGreen: "#D0E8C5",
-      creamWhite: "#FFF8DE",
+      lightBeige: colors.secondary.light,
+      lightGreen: colors.secondary.dark,
+      deepTeal: colors.primary.light,
+      darkBlue: colors.primary.dark,
+      paleGreen: colors.success.light,
+      creamWhite: colors.text.light,
     },
   },
   components: {
@@ -48,16 +49,16 @@ const theme = createTheme({
           paddingBottom: "8.5px",
         },
         containedPrimary: {
-          backgroundColor: "#27667B",
+          backgroundColor: colors.primary.light,
           "&:hover": {
-            backgroundColor: "#143D60",
+            backgroundColor: colors.primary.dark,
           },
         },
         containedSecondary: {
-          backgroundColor: "#A0C878",
-          color: "#143D60",
+          backgroundColor: colors.secondary.dark,
+          color: colors.primary.dark,
           "&:hover": {
-            backgroundColor: "#DDEB9D",
+            backgroundColor: colors.secondary.light,
           },
         },
       },
@@ -69,10 +70,10 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiIconButton-root": {
-            color: "#27667B", // Deep teal for visibility icons
+            color: colors.primary.light, // Deep teal for visibility icons
             "&:hover": {
               backgroundColor: "rgba(39, 102, 123, 0.1)",
-              color: "#143D60", // Darker teal on hover
+              color: colors.primary.dark, // Darker teal on hover
             },
           },
         },
@@ -89,7 +90,7 @@ const theme = createTheme({
             MozAppearance: "textfield", // Firefox
           },
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#27667B",
+            borderColor: colors.border.main,
           },
         },
       },
@@ -97,11 +98,11 @@ const theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "#143D60",
+          color: colors.primary.dark,
           "&.Mui-focused": {
-            color: "#143D60",
+            color: colors.primary.dark,
             "& .MuiInputLabel-asterisk": {
-              color: "#143D60",
+              color: colors.primary.dark,
             },
           },
         },
@@ -111,12 +112,12 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "&::before, &::after": {
-            borderColor: "#D0E8C5", // Pale green lines
+            borderColor: colors.success.light, // Pale green lines
             borderWidth: "2px",
           },
         },
         wrapper: {
-          color: "#27667B", // Deep teal text
+          color: colors.primary.light, // Deep teal text
           fontSize: "1 rem",
           fontWeight: 300,
           paddingLeft: 16,
@@ -128,16 +129,16 @@ const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         icon: {
-          color: "#27667B", // Deep teal for dropdown icon
+          color: colors.primary.light, // Deep teal for dropdown icon
         },
       },
     },
     MuiMenu: {
       styleOverrides: {
         paper: {
-          border: "1px solid #27667B",
+          border: `1px solid ${colors.border.main}`,
           maxHeight: "190px",
-          backgroundColor: "#FFF8DE",
+          backgroundColor: colors.text.light,
           borderRadius: "8px",
           overflowY: "auto",
           scrollbarWidth: "none", // Firefox
@@ -150,26 +151,25 @@ const theme = createTheme({
         paper: {
           padding: "12px",
           borderRadius: "12px",
-          backgroundColor: "#FFF8DE",
+          backgroundColor: colors.text.light,
           minWidth: "500px",
         },
       },
     },
     MuiDialogTitle: {
-      styleOverrides: { root: { fontWeight: 600, color: "#143D60" } },
+      styleOverrides: { root: { fontWeight: 600, color: colors.primary.dark } },
     },
-    MuiDialogContentText: { styleOverrides: { root: { color: "#143D60" } } },
+    MuiDialogContentText: { styleOverrides: { root: { color: colors.primary.dark } } },
     MuiDialogActions: { styleOverrides: { root: { gap: "8px" } } },
     MuiPopper: {
       styleOverrides: {
         root: {
-          "& .MuiOutlinedInput": { borderColor: "#27667B" },
+          "& .MuiOutlinedInput": { borderColor: colors.border.main },
           "& .MuiPaper-root": {
-            backgroundColor: "#FFF8DE",
             borderRadius: "12px",
             padding: "8px",
-            color: "#143D60",
-            border: "1px solid #27667B",
+            color: colors.primary.dark,
+            border: `1px solid ${colors.border.main}`,
           },
         },
       },
@@ -177,7 +177,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: "#FFF8DE",
+          backgroundColor: colors.text.light,
           boxShadow: "none",
         },
       },
@@ -186,7 +186,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "12px",
-          border: "1.5px solid #27667B",
+          border: `1.5px solid ${colors.border.main}`,
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
           overflow: "hidden"
         },
@@ -195,7 +195,7 @@ const theme = createTheme({
     MuiTable: {
       styleOverrides: {
         root: {
-          backgroundColor: "#FFF8DE",
+          backgroundColor: colors.text.light,
         },
       },
     },
@@ -204,8 +204,8 @@ const theme = createTheme({
         root: {
           "& .MuiTableCell-head": {
             fontWeight: 600,
-            color: "#143D60",
-            borderBottom: "1.5px solid #27667B",
+            color: colors.primary.dark,
+            borderBottom: `1.5px solid ${colors.border.main}`,
           },
         },
       },
@@ -213,26 +213,26 @@ const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         root: {
-          borderBottom: "1px solid #27667b40",
-          color: "#143D60",
+          borderBottom: `1px solid ${colors.border.light}`,
+          color: colors.primary.dark,
         },
         head: {
           fontWeight: 600,
-          color: "#143D60",
-          backgroundColor: "#D0E8C5",
+          color: colors.primary.dark,
+          backgroundColor: colors.success.light,
         },
       },
     },
     MuiTableRow: {
       styleOverrides: {
         root: {
-          backgroundColor: "#FFF8DE",
+          backgroundColor: colors.text.light,
           "&:hover": {
-            backgroundColor: "#F8F7BA",
+            backgroundColor: colors.background.hover,
             cursor: "pointer",
           },
           "&.MuiTableRow-hover:hover": {
-            backgroundColor: "#F8F7BA",
+            backgroundColor: colors.background.hover,
           },
         },
       },
@@ -240,37 +240,37 @@ const theme = createTheme({
     MuiTableSortLabel: {
       styleOverrides: {
         root: {
-          color: "#143D60",
+          color: colors.primary.dark,
           "&:hover": {
-            color: "#27667B",
+            color: colors.primary.light,
           },
           "&.Mui-active": {
-            color: "#27667B",
+            color: colors.primary.light,
           },
         },
         icon: {
-          color: "#27667B !important",
+          color: `${colors.primary.light} !important`,
         },
       },
     },
     MuiTablePagination: {
       styleOverrides: {
         root: {
-          color: "#143D60", // Dark blue text
-          borderTop: "1px solid #D0E8C5", // Pale green border
+          color: colors.primary.dark, // Dark blue text
+          borderTop: `1px solid ${colors.success.light}`, // Pale green border
         },
         selectIcon: {
-          color: "#27667B", // Deep teal dropdown icon
+          color: colors.primary.light, // Deep teal dropdown icon
         },
         actions: {
-          color: "#27667B", // Deep teal navigation buttons
+          color: colors.primary.light, // Deep teal navigation buttons
           "& .MuiIconButton-root": {
-            color: "#27667B",
+            color: colors.primary.light,
             "&:hover": {
               backgroundColor: "rgba(39, 102, 123, 0.1)",
             },
             "&.Mui-disabled": {
-              color: "#D0E8C5",
+              color: colors.success.light,
             },
           },
         },

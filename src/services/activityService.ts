@@ -34,7 +34,7 @@ export const createActivity = async (
     userId
   );
 
-  const response = await fetch("http://localhost:8080/api/activities", {
+  const response = await fetch("http://localhost:8080/api/user/activities", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export const createActivity = async (
 
 export const getUserActivities = async () => {
   const response = await fetch(
-    "http://localhost:8080/api/activities/getUserActivities",
+    "http://localhost:8080/api/user/activities/getUserActivities",
     {
       method: "GET",
       headers: {

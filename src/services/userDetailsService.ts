@@ -11,7 +11,7 @@ interface updateUserProfileResponse {
 
 export const getUserProfileDetails = async (JWT_TOKEN: string) => {
   const response = await fetch(
-    "http://localhost:8080/api/users/getProfileDetails",
+    "http://localhost:8080/api/user/getProfileDetails",
     {
       method: "GET",
       headers: {
@@ -37,7 +37,7 @@ export const updateUserProfileDetails = async (
   newPswd?: string,
 ): Promise<updateUserProfileResponse> => {
   const response = await fetch(
-    "http://localhost:8080/api/users/updateProfileDetails",
+    "http://localhost:8080/api/user/updateProfileDetails",
     {
       method: "PUT",
       headers: {
@@ -65,7 +65,7 @@ export const updateUserProfileDetails = async (
 
 export const deleteUserProfile = async (JWT_TOKEN: string) => {
   const response = await fetch(
-    "http://localhost:8080/api/users/deleteProfile",
+    "http://localhost:8080/api/user/deleteProfile",
     {
       method: "DELETE",
       headers: {

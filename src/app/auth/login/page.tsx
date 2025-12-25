@@ -1,32 +1,32 @@
 "use client";
-import { Alert, Button, Divider, Link, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import {
-  Container,
-  Disclaimer,
-  FormSection,
-  LinkSection,
-  OAuth,
-  Section,
-  Separator,
-  StyledLink,
-  Title,
-  Wrapper,
-} from "../auth.styles";
-import PasswordField from "@/components/reusableComponents/PasswordField";
 
-import { FcGoogle } from "react-icons/fc";
+import React, { useState } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Link,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Alert,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { TreeIllustration } from "@/components/illustrations";
+import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
 import { loginUser } from "@/services/authService";
 import { validateEmail, validatePswd } from "@/utils/validations";
 import { setJwtToken } from "@/store/features/slices/authSlice";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [pswd, setPswd] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -140,23 +140,15 @@ const Login = () => {
     }
   };
 
-  const handleClearClicked = () => {
-    setEmail("");
-    setPswd("");
-    setEmailError("");
-    setPswdError("");
-    setApiError("");
-  };
-
   return (
-    <Container>
-      <Wrapper>
-        <Title>Login</Title>
-        <Section>
-          Don&apos;t have an account?{" "}
-          <StyledLink href="/auth/register">Register</StyledLink>
-        </Section>
-
+    <>
+      <AuthPageLayout
+        title="Welcome Back"
+        subtitle="Sign in to GreenTrack and continue your sustainability journey"
+        illustration={<TreeIllustration />}
+        illustrationTitle="Track Your Carbon Footprint"
+        illustrationSubtitle="Join us in making a sustainable difference for our planet"
+      >
         {/* Success Message */}
         {successMessage && (
           <Alert severity="success" sx={{ mb: 2 }}>
@@ -170,70 +162,127 @@ const Login = () => {
             {apiError}
           </Alert>
         )}
-        <FormSection onSubmit={handleSubmit} noValidate>
-          <TextField
-            fullWidth
-            required
-            id="email"
-            label="Email"
-            type="email"
-            variant="outlined"
-            value={email}
-            onChange={handleEmailChange}
-            error={!!emailError}
-            helperText={emailError}
-          />
-          <PasswordField
-            id="password"
-            value={pswd}
-            onChange={handlePswdChange}
-            error={pswdError}
-          />
 
-          <LinkSection>
-            <StyledLink href="/auth/forgot-password">
-              Forgot password?
-            </StyledLink>
-          </LinkSection>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              required
+              autoComplete="email"
+              autoFocus
+              error={!!emailError}
+              helperText={emailError}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
+            />
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isLoading}
-          >
-            {isLoading ? "Logging in..." : "Login"}
-          </Button>
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={pswd}
+              onChange={handlePswdChange}
+              required
+              autoComplete="current-password"
+              error={!!pswdError}
+              helperText={pswdError}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiInputBase-root': {
+                  height: '56px',
+                },
+                mt: 1,
+                mb: 1,
+              }}
+            />
 
-          <Button fullWidth variant="outlined" onClick={handleClearClicked}>
-            Clear
-          </Button>
-        </FormSection>
+            <Box sx={{ textAlign: "right", mt: 1.5 }}>
+              <Link
+                href="/auth/forgot-password"
+                variant="body2"
+                sx={{ textDecoration: "none", fontSize: '0.875rem' }}
+              >
+                Forgot Password?
+              </Link>
+            </Box>
 
-        <Separator>
-          <Divider>or</Divider>
-        </Separator>
-
-        <OAuth>
-          <Button variant="outlined" onClick={handleGoogleLogin}>
-            <FcGoogle size={"32px"} /> &nbsp; Continue with Google
-          </Button>
-        </OAuth>
-
-        <Disclaimer>
-          <Typography variant="body2">
-            By creating this account, you agree to our{" "}
-            <Link
-              component={StyledLink}
-              href={"/auth/terms-and-conditions"}
-              target="_blank"
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 2.5,
+                mb: 1.5,
+                py: 1,
+                bgcolor: "primary.main",
+                color: "#FFFFFF",
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                  color: "#FFFFFF",
+                },
+              }}
             >
-              Terms and Conditions
-            </Link>{" "}
-          </Typography>
-        </Disclaimer>
-      </Wrapper>
-    </Container>
+              Sign In
+            </Button>
+
+            <Divider sx={{ my: 2 }}>OR</Divider>
+
+            <Button 
+              fullWidth 
+              variant="outlined" 
+              onClick={handleGoogleLogin}
+              sx={{ mb: 2, py: 1 }}
+            >
+              <FcGoogle size={"20px"} /> &nbsp; Continue with Google
+            </Button>
+
+            <Typography variant="body2" align="center" sx={{ fontSize: '0.875rem', mt: 2 }}>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/auth/register"
+                sx={{ textDecoration: "none", fontWeight: 600, color: "secondary.main" }}
+              >
+                Sign Up
+              </Link>
+            </Typography>
+
+            <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "text.secondary", fontSize: '0.75rem' }}>
+              By signing in, you agree to our{" "}
+              <Link
+                href="/auth/terms-and-conditions"
+                target="_blank"
+                sx={{ textDecoration: "none" }}
+              >
+                Terms and Conditions
+              </Link>
+            </Typography>
+          </Box>
+        </AuthPageLayout>
+
+      <LoadingBackdrop open={isLoading} message="Logging in..." />
+    </>
   );
 };
 
