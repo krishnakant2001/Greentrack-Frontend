@@ -1,25 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Link,
-  InputAdornment,
-  IconButton,
-  Alert,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import React, { useEffect, useState, useRef } from "react";
+import { Box, TextField, Button, Typography, Link, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { SuccessCheckmarkIllustration } from "@/components/illustrations";
 import { verifyOtpAndRegisterUser } from "@/services/verifyOtpService";
 import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
 
 const OtpValidation = () => {
-  const [showOtp, setShowOtp] = useState(false);
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const [timer, setTimer] = useState(60);
@@ -28,6 +17,7 @@ const OtpValidation = () => {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,26 +36,56 @@ const OtpValidation = () => {
     };
   }, [timer]);
 
-  const validateOtp = (value: string) => {
-    const otpRegex = /^\d{6}$/; // Assuming OTP is a 6-digit number
-    return otpRegex.test(value);
+  const handleOtpChange = (index: number, value: string) => {
+    // Only allow digits
+    if (value && !/^\d$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    setOtpError("");
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
   };
 
-  const handleOtpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setOtp(event.target.value);
-    if (validateOtp(event.target.value)) {
-      setOtpError("");
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    // Handle backspace
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
-    if (event.target.value.length > 6) {
-      setOtpError("OTP must be 6 digits.");
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").slice(0, 6);
+
+    if (/^\d+$/.test(pastedData)) {
+      const newOtp = [...otp];
+      for (let i = 0; i < pastedData.length && i < 6; i++) {
+        newOtp[i] = pastedData[i];
+      }
+      setOtp(newOtp);
+      setOtpError("");
+
+      // Focus the next empty field or the last field
+      const nextIndex = Math.min(pastedData.length, 5);
+      inputRefs.current[nextIndex]?.focus();
     }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (otp === "" || !validateOtp(otp)) {
-      setOtpError("Please enter a valid 6-digit OTP.");
+    const otpValue = otp.join("");
+
+    if (otpValue.length !== 6) {
+      setOtpError("Please enter all 6 digits.");
       return;
     }
 
@@ -77,28 +97,17 @@ const OtpValidation = () => {
       return;
     }
 
-    // Start Loading
     setIsLoading(true);
-    
+
     try {
-      // Call register API
-      const response = await verifyOtpAndRegisterUser(
-        email,
-        otp
-      );
-
+      const response = await verifyOtpAndRegisterUser(email, otpValue);
       console.log("Verification and Registration Done:", response);
-
-      // Success handling
       setSuccessMessage("User registration successfull");
 
-      // Optionally, redirect to login page after a delay
       setTimeout(() => {
         router.push("/dashboard");
       }, 3000);
-
     } catch (error) {
-      // Error handling
       console.error("Registration error:", error);
 
       let errorMessage =
@@ -111,7 +120,6 @@ const OtpValidation = () => {
       }
       setApiError(errorMessage);
     } finally {
-      // Stop Loading
       setIsLoading(false);
     }
   };
@@ -119,11 +127,12 @@ const OtpValidation = () => {
   const handleResendClicked = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (!isResendEnabled) return;
-    // Trigger your resend OTP logic here
     console.log("Resending OTP...");
 
+    setOtp(["", "", "", "", "", ""]);
     setTimer(60);
     setIsResendEnabled(false);
+    inputRefs.current[0]?.focus();
   };
 
   return (
@@ -138,103 +147,141 @@ const OtpValidation = () => {
         logoSize={70}
         formPadding={{ xs: 2, md: 4 }}
       >
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {successMessage}
+          </Alert>
+        )}
 
-          {apiError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Alert>
-          )}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
 
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              fullWidth
-              label="One-Time Password (OTP)"
-              name="otp"
-              type={showOtp ? "text" : "password"}
-              value={otp}
-              onChange={handleOtpChange}
-              margin="normal"
-              required
-              autoFocus
-              error={!!otpError}
-              helperText={otpError}
-              inputProps={{ maxLength: 6 }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle otp visibility"
-                      onClick={() => setShowOtp(!showOtp)}
-                      edge="end"
-                    >
-                      {showOtp ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Box sx={{ mt: 3, mb: 2 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 2, textAlign: "center" }}
+            >
+              Enter 6-digit OTP
+            </Typography>
+
+            <Box
               sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
-                },
-              }}
-            />
-
-            <Box sx={{ textAlign: "center", mt: 2, mb: 2 }}>
-              {isResendEnabled ? (
-                <Link
-                  href="#"
-                  onClick={handleResendClicked}
-                  sx={{ textDecoration: "none", fontWeight: 600, color: "secondary.main" }}
-                >
-                  Resend OTP
-                </Link>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  You can resend OTP in {timer} second{timer !== 1 ? "s" : ""}
-                </Typography>
-              )}
-            </Box>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              disabled={isLoading}
-              sx={{
-                mt: 2,
-                mb: 2,
-                py: 1.5,
-                bgcolor: "primary.main",
-                color: "#FFFFFF",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  color: "#FFFFFF",
-                },
+                display: "flex",
+                gap: { xs: 1, sm: 2 },
+                justifyContent: "center",
+                mb: 1,
               }}
             >
-              {isLoading ? "Verifying..." : "Verify OTP"}
-            </Button>
+              {otp.map((digit, index) => (
+                <TextField
+                  key={index}
+                  inputRef={(el) => (inputRefs.current[index] = el)}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) =>
+                    handleKeyDown(
+                      index,
+                      e as React.KeyboardEvent<HTMLInputElement>
+                    )
+                  }
+                  onPaste={index === 0 ? handlePaste : undefined}
+                  inputProps={{
+                    maxLength: 1,
+                    style: {
+                      textAlign: "center",
+                      fontSize: "24px",
+                      fontWeight: 600,
+                    },
+                  }}
+                  sx={{
+                    width: { xs: "45px", sm: "56px" },
+                    "& .MuiInputBase-root": {
+                      height: { xs: "45px", sm: "56px" },
+                      borderRadius: 2,
+                    },
+                    "& input": {
+                      padding: 0,
+                    },
+                  }}
+                  error={!!otpError}
+                  autoFocus={index === 0}
+                />
+              ))}
+            </Box>
 
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-              For more information, please review our{" "}
-              <Link
-                href="/auth/terms-and-conditions"
-                target="_blank"
-                sx={{ textDecoration: "none" }}
+            {otpError && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{ display: "block", textAlign: "center", mt: 1 }}
               >
-                Terms and Conditions
-              </Link>
-            </Typography>
+                {otpError}
+              </Typography>
+            )}
           </Box>
+
+          <Box sx={{ textAlign: "center", mt: 2, mb: 2 }}>
+            {isResendEnabled ? (
+              <Link
+                href="#"
+                onClick={handleResendClicked}
+                sx={{
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  color: "secondary.main",
+                }}
+              >
+                Resend OTP
+              </Link>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                You can resend OTP in {timer} second{timer !== 1 ? "s" : ""}
+              </Typography>
+            )}
+          </Box>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            size="large"
+            disabled={isLoading}
+            sx={{
+              mt: 2,
+              mb: 2,
+              py: 1.5,
+              bgcolor: "primary.main",
+              color: "#FFFFFF",
+              "&:hover": {
+                bgcolor: "primary.dark",
+                color: "#FFFFFF",
+              },
+            }}
+          >
+            {isLoading ? "Verifying..." : "Verify OTP"}
+          </Button>
+
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            align="center"
+            sx={{ mt: 2 }}
+          >
+            For more information, please review our{" "}
+            <Link
+              href="/auth/terms-and-conditions"
+              target="_blank"
+              sx={{ textDecoration: "none" }}
+            >
+              Terms and Conditions
+            </Link>
+          </Typography>
+        </Box>
       </AuthPageLayout>
       <LoadingBackdrop open={isLoading} message="Verifying OTP..." />
     </>
