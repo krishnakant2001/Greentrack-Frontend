@@ -1,4 +1,4 @@
-export const activitySubCategoryData = [
+export const activitySubCategoryConstants = [
   // Travel
   { code: "CAR_PETROL", name: "Car Petrol", category: "TRAVEL" },
   { code: "CAR_DIESEL", name: "Car Diesel", category: "TRAVEL" },

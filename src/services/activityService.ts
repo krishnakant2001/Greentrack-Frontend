@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
-import { JWT_TOKEN } from "./jwtToken";
+import { getJwtToken } from "./jwtToken";
 import { Dayjs } from "dayjs";
+import { API_ENDPOINTS, buildApiUrl, getCommonHeaders } from "@/configs/apiConfig";
 
 const generateClientIdempotencyKey = (
   activityCategory: string,
@@ -25,7 +26,6 @@ export const createActivity = async (
   description: string,
   userId: string
 ) => {
-
   const clientIdempotencyKey = generateClientIdempotencyKey(
     activityCategory,
     activitySubCategory,
@@ -34,12 +34,9 @@ export const createActivity = async (
     userId
   );
 
-  const response = await fetch("http://localhost:8080/api/user/activities", {
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.ACTIVITIES.CREATE), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${JWT_TOKEN}`,
-    },
+    headers: getCommonHeaders(getJwtToken()),
     body: JSON.stringify({
       category: activityCategory,
       subType: activitySubCategory,
@@ -53,27 +50,112 @@ export const createActivity = async (
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json().catch(() => null);
+    const errorMessage =
+      errorData?.message || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return await response.json();
+};
+
+export const updateActivity = async (
+  activityId: string,
+  activityCategory: string,
+  activitySubCategory: string,
+  quantity: string,
+  unit: string,
+  activityDate: Dayjs | null,
+  location: string,
+  description: string,
+  userId: string
+) => {
+  const clientIdempotencyKey = generateClientIdempotencyKey(
+    activityCategory,
+    activitySubCategory,
+    quantity,
+    unit,
+    userId
+  );
+
+  const response = await fetch(
+    buildApiUrl(API_ENDPOINTS.ACTIVITIES.UPDATE(activityId)),
+    {
+      method: "PUT",
+      headers: getCommonHeaders(getJwtToken()),
+      body: JSON.stringify({
+        category: activityCategory,
+        subType: activitySubCategory,
+        quantity: Number(quantity),
+        unit,
+        activityDate,
+        location,
+        description,
+        clientIdempotencyKey: clientIdempotencyKey,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const errorMessage =
+      errorData?.message || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
   }
 
   return await response.json();
 };
 
 export const getUserActivities = async () => {
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.ACTIVITIES.GET_ALL), {
+    method: "GET",
+    headers: getCommonHeaders(getJwtToken()),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const errorMessage =
+      errorData?.message || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+};
+
+export const getActivityById = async (activityId: string) => {
   const response = await fetch(
-    "http://localhost:8080/api/user/activities/getUserActivities",
+    buildApiUrl(`${API_ENDPOINTS.ACTIVITIES.GET_BY_ID(activityId)}`),
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_TOKEN}`,
-      },
+      headers: getCommonHeaders(getJwtToken()),
     }
   );
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json().catch(() => null);
+    const errorMessage =
+      errorData?.message || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
   }
 
   return response.json();
-}
+};
+
+export const deleteActivity = async (activityId: string) => {
+  const response = await fetch(
+    buildApiUrl(API_ENDPOINTS.ACTIVITIES.DELETE(activityId)),
+    {
+      method: "DELETE",
+      headers: getCommonHeaders(getJwtToken()),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const errorMessage =
+      errorData?.message || `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
+  }
+
+  return;
+};

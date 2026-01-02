@@ -13,15 +13,16 @@ import {
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import UserMenu from "../featureComponents/userMenu";
+import { GreenTrackLogo } from "../illustrations";
 
 interface HorizontalNavbarProps {
   notificationCount?: number;
   onNotificationClick?: () => void;
 }
 
-const HorizontalNavbar: React.FC<HorizontalNavbarProps> = ({ 
+const HorizontalNavbar: React.FC<HorizontalNavbarProps> = ({
   notificationCount = 3,
-  onNotificationClick
+  onNotificationClick,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,7 +35,10 @@ const HorizontalNavbar: React.FC<HorizontalNavbarProps> = ({
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -45,22 +49,34 @@ const HorizontalNavbar: React.FC<HorizontalNavbarProps> = ({
 
   return (
     <Container>
-      <LogoSection href={"/"}>🌱 GreenTrack</LogoSection>
+      <LogoSection href={"/"}>
+        <GreenTrackLogo size={60} /> GreenTrack
+      </LogoSection>
 
       <ActionGroup>
-        <NotificationButton onClick={onNotificationClick} title="View notifications">
-          <NotificationsOutlinedIcon style={{ fontSize: ICON_SIZES.small, color: COLORS.primary }} />
+        <NotificationButton
+          onClick={onNotificationClick}
+          title="View notifications"
+        >
+          <NotificationsOutlinedIcon
+            style={{ fontSize: ICON_SIZES.small, color: COLORS.primary }}
+          />
           {notificationCount > 0 && (
             <NotificationBadge>{notificationCount}</NotificationBadge>
           )}
         </NotificationButton>
 
-        <ProfileSection ref={dropdownRef} onClick={handleClicked} title="Profile menu">
-          <AccountCircleOutlinedIcon style={{ fontSize: ICON_SIZES.large, color: COLORS.primary }} />
+        <ProfileSection
+          ref={dropdownRef}
+          onClick={handleClicked}
+          title="Profile menu"
+        >
+          <AccountCircleOutlinedIcon
+            style={{ fontSize: ICON_SIZES.large, color: COLORS.primary }}
+          />
           {isOpen && <UserMenu />}
         </ProfileSection>
       </ActionGroup>
-      
     </Container>
   );
 };

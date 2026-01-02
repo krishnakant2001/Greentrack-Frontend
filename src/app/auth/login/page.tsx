@@ -11,6 +11,7 @@ import {
   IconButton,
   Divider,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
@@ -19,8 +20,9 @@ import { TreeIllustration } from "@/components/illustrations";
 import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
 import { loginUser } from "@/services/authService";
 import { validateEmail, validatePswd } from "@/utils/validations";
-import { setJwtToken } from "@/store/features/slices/authSlice";
+import { setJwtToken, setUserInfo } from "@/store/features/slices/authSlice";
 import { FcGoogle } from "react-icons/fc";
+import { getUserProfileDetails } from "@/services/userDetailsService";
 
 const Login = () => {
   const router = useRouter();
@@ -34,6 +36,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
@@ -52,7 +55,7 @@ const Login = () => {
     if (validatePswd(event.target.value)) {
       setPswdError("");
     }
-     if (apiError) setApiError("");
+    if (apiError) setApiError("");
   };
 
   const checkValidCredentials = () => {
@@ -92,21 +95,19 @@ const Login = () => {
 
         // Success handling
         setSuccessMessage("Login successful! Redirecting...");
+        setSnackbarOpen(true);
 
-        // Store token in localStorage (or use a more secure method)
+        // Store token and user info in Redux
         if (response.data) {
           dispatch(setJwtToken(response.data.token));
-          // Store user data if needed
-          // if (response.user) {
-          //   localStorage.setItem("user", JSON.stringify(response.user));
-          // }
+          getUserProfileDetails(response.data.token).then((userData) => {
+            dispatch(setUserInfo(userData.data));
+          });
         }
-
         // Redirect to dashboard or home page after a short delay
         setTimeout(() => {
           router.push("/dashboard"); // Adjust the route as needed
         }, 1500);
-        
       } catch (error: unknown) {
         // Error handling
         console.error("Login error:", error);
@@ -149,14 +150,7 @@ const Login = () => {
         illustrationTitle="Track Your Carbon Footprint"
         illustrationSubtitle="Join us in making a sustainable difference for our planet"
       >
-        {/* Success Message */}
-        {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
-          </Alert>
-        )}
-
-        {/* Error Message */}
+        {/* Error Message - Keep at top for errors */}
         {apiError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {apiError}
@@ -164,124 +158,153 @@ const Login = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
-              required
-              autoComplete="email"
-              autoFocus
-              error={!!emailError}
-              helperText={emailError}
-              sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
-                },
-                mt: 1,
-                mb: 1,
-              }}
-            />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={handleEmailChange}
+            required
+            autoComplete="email"
+            autoFocus
+            error={!!emailError}
+            helperText={emailError}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          />
 
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={pswd}
-              onChange={handlePswdChange}
-              required
-              autoComplete="current-password"
-              error={!!pswdError}
-              helperText={pswdError}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
-                },
-                mt: 1,
-                mb: 1,
-              }}
-            />
+          <TextField
+            fullWidth
+            label="Password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={pswd}
+            onChange={handlePswdChange}
+            required
+            autoComplete="current-password"
+            error={!!pswdError}
+            helperText={pswdError}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          />
 
-            <Box sx={{ textAlign: "right", mt: 1.5 }}>
-              <Link
-                href="/auth/forgot-password"
-                variant="body2"
-                sx={{ textDecoration: "none", fontSize: '0.875rem' }}
-              >
-                Forgot Password?
-              </Link>
-            </Box>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{
-                mt: 2.5,
-                mb: 1.5,
-                py: 1,
-                bgcolor: "primary.main",
-                color: "#FFFFFF",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  color: "#FFFFFF",
-                },
-              }}
+          <Box sx={{ textAlign: "right", mt: 1.5 }}>
+            <Link
+              href="/auth/forgot-password"
+              variant="body2"
+              sx={{ textDecoration: "none", fontSize: "0.875rem" }}
             >
-              Sign In
-            </Button>
-
-            <Divider sx={{ my: 2 }}>OR</Divider>
-
-            <Button 
-              fullWidth 
-              variant="outlined" 
-              onClick={handleGoogleLogin}
-              sx={{ mb: 2, py: 1 }}
-            >
-              <FcGoogle size={"20px"} /> &nbsp; Continue with Google
-            </Button>
-
-            <Typography variant="body2" align="center" sx={{ fontSize: '0.875rem', mt: 2 }}>
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/register"
-                sx={{ textDecoration: "none", fontWeight: 600, color: "secondary.main" }}
-              >
-                Sign Up
-              </Link>
-            </Typography>
-
-            <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "text.secondary", fontSize: '0.75rem' }}>
-              By signing in, you agree to our{" "}
-              <Link
-                href="/auth/terms-and-conditions"
-                target="_blank"
-                sx={{ textDecoration: "none" }}
-              >
-                Terms and Conditions
-              </Link>
-            </Typography>
+              Forgot Password?
+            </Link>
           </Box>
-        </AuthPageLayout>
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 2.5,
+              mb: 1.5,
+              py: 1,
+              bgcolor: "primary.main",
+              color: "#FFFFFF",
+              "&:hover": {
+                bgcolor: "primary.dark",
+                color: "#FFFFFF",
+              },
+            }}
+          >
+            Sign In
+          </Button>
+
+          <Divider sx={{ my: 2 }}>OR</Divider>
+
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleGoogleLogin}
+            sx={{ mb: 2, py: 1 }}
+          >
+            <FcGoogle size={"20px"} /> &nbsp; Continue with Google
+          </Button>
+
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ fontSize: "0.875rem", mt: 2 }}
+          >
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/auth/register"
+              sx={{
+                textDecoration: "none",
+                fontWeight: 600,
+                color: "secondary.main",
+              }}
+            >
+              Sign Up
+            </Link>
+          </Typography>
+
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ mt: 1.5, color: "text.secondary", fontSize: "0.75rem" }}
+          >
+            By signing in, you agree to our{" "}
+            <Link
+              href="/auth/terms-and-conditions"
+              target="_blank"
+              sx={{ textDecoration: "none" }}
+            >
+              Terms and Conditions
+            </Link>
+          </Typography>
+        </Box>
+      </AuthPageLayout>
 
       <LoadingBackdrop open={isLoading} message="Logging in..." />
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+          variant="filled"
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

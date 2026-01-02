@@ -1,2 +1,10 @@
-export const JWT_TOKEN =
-  "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2OGI2NmRlOWVmOGI3ZTAyY2ExNGQ2ZTAiLCJlbWFpbCI6ImtyaXNobmFrYW50QGdtYWlsLmNvbSIsImlhdCI6MTc1OTA1NTQ3NCwiZXhwIjoxNzYxNjQ3NDc0fQ.5vLbYnODPUGSWGtuu5zFiPD4IfzvyfNGqehFKbKAHQFJaeGS7yorkkICDGYEYo23";
+import { store } from "@/store/store";
+
+// Function to get the current JWT token from the Redux store
+export const getJwtToken = (): string => {
+  const state = store.getState();
+  return state.auth.jwtToken || "";
+};
+
+// Export the JWT token for use in other parts of the application
+export const JWT_TOKEN = getJwtToken();

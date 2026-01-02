@@ -1,3 +1,9 @@
+import {
+  buildApiUrl,
+  API_ENDPOINTS,
+  getCommonHeaders,
+} from "@/configs/apiConfig";
+
 interface updateUserProfileResponse {
   user?: {
     id: string;
@@ -10,16 +16,10 @@ interface updateUserProfileResponse {
 }
 
 export const getUserProfileDetails = async (JWT_TOKEN: string) => {
-  const response = await fetch(
-    "http://localhost:8080/api/user/getProfileDetails",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_TOKEN}`,
-      },
-    }
-  );
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.USER.PROFILE), {
+    method: "GET",
+    headers: getCommonHeaders(JWT_TOKEN),
+  });
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -34,25 +34,19 @@ export const updateUserProfileDetails = async (
   region: string,
   JWT_TOKEN: string,
   currentPswd?: string,
-  newPswd?: string,
+  newPswd?: string
 ): Promise<updateUserProfileResponse> => {
-  const response = await fetch(
-    "http://localhost:8080/api/user/updateProfileDetails",
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_TOKEN}`,
-      },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        region,
-        currentPassword: currentPswd,
-        newPassword: newPswd,
-      }),
-    }
-  );
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.USER.UPDATE_PROFILE), {
+    method: "PUT",
+    headers: getCommonHeaders(JWT_TOKEN),
+    body: JSON.stringify({
+      firstName,
+      lastName,
+      region,
+      currentPassword: currentPswd,
+      newPassword: newPswd,
+    }),
+  });
 
   const data = await response.json();
 
@@ -64,16 +58,10 @@ export const updateUserProfileDetails = async (
 };
 
 export const deleteUserProfile = async (JWT_TOKEN: string) => {
-  const response = await fetch(
-    "http://localhost:8080/api/user/deleteProfile",
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${JWT_TOKEN}`,
-      },
-    }
-  );
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.USER.DELETE_PROFILE), {
+    method: "DELETE",
+    headers: getCommonHeaders(JWT_TOKEN),
+  });
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);

@@ -1,0 +1,28 @@
+export const mockGoals = [
+  {
+    id: "g1",
+    title: "Reduce Car Travel by 20% this month",
+    description: "Use public transport and cycle when possible.",
+    goalType: "CATEGORY_REDUCTION",
+    targetCategory: "TRAVEL",
+    currentValue: 120,
+    targetValue: 96,
+    period: "MONTHLY",
+    startDate: "2025-12-01",
+    endDate: "2025-12-31",
+    createdAt: "2025-12-01T08:00:00Z",
+  },
+  {
+    id: "g2",
+    title: "Lower monthly energy usage",
+    description: "Switch off unused lights and reduce AC usage.",
+    goalType: "TOTAL_EMISSIONS_REDUCTION",
+    targetCategory: null,
+    currentValue: 450,
+    targetValue: 400,
+    period: "MONTHLY",
+    startDate: "2025-12-01",
+    endDate: "2026-01-01",
+    createdAt: "2025-12-02T10:00:00Z",
+  },
+];

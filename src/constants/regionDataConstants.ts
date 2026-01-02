@@ -1,4 +1,4 @@
-export const regionData = [
+export const regionDataConstants = [
   {
     code: "AF",
     name: "Afghanistan",

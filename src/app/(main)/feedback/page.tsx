@@ -1,12 +1,15 @@
-import React from 'react'
+"use client";
+import React from "react";
+import WorkInProgress from "@/components/reusableComponents/WorkInProgress";
 
 const Feedback = () => {
   return (
-    <div>
-      <h1>Feedback</h1>
-      <p>We value your feedback. Please let us know your thoughts!</p>
-    </div>
-  )
-}
+    <WorkInProgress
+      title="Feedback Feature Coming Soon"
+      message="We're building a comprehensive feedback system where you can share your thoughts, suggestions, and experiences with GreenTrack. Your input will help us make the platform even better!"
+      icon="rocket"
+    />
+  );
+};
 
-export default Feedback
+export default Feedback;

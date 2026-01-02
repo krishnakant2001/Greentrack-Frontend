@@ -1,12 +1,15 @@
-import React from 'react'
+"use client";
+import React from "react";
+import WorkInProgress from "@/components/reusableComponents/WorkInProgress";
 
 const Recommendations = () => {
   return (
-    <div>
-      <h1>Recommendations</h1>
-      <p>Here are some recommendations for you.</p>
-    </div>
-  )
-}
+    <WorkInProgress
+      title="Smart Recommendations"
+      message="We're developing an intelligent recommendation engine that will analyze your carbon footprint and provide personalized suggestions to help you reduce your environmental impact."
+      icon="rocket"
+    />
+  );
+};
 
-export default Recommendations
+export default Recommendations;

@@ -2,9 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PowerSettingsNewOutlinedIcon from "@mui/icons-material/PowerSettingsNewOutlined";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { Divider } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 // Animation keyframes extracted for better performance
 const slideIn = `
@@ -36,7 +37,8 @@ const DropdownContainer = styled.div`
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(20, 61, 96, 0.15), 0 2px 8px rgba(20, 61, 96, 0.08);
+  box-shadow: 0 8px 32px rgba(20, 61, 96, 0.15),
+    0 2px 8px rgba(20, 61, 96, 0.08);
   border: 2px solid rgba(160, 200, 120, 0.3);
   padding: 12px;
   z-index: 1000;
@@ -69,7 +71,11 @@ const UserInfo = styled.div`
   padding: 12px;
   margin-bottom: 8px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(160, 200, 120, 0.08) 0%, rgba(160, 200, 120, 0.04) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(160, 200, 120, 0.08) 0%,
+    rgba(160, 200, 120, 0.04) 100%
+  );
   border: 2px solid rgba(160, 200, 120, 0.2);
 `;
 
@@ -173,18 +179,41 @@ const StyledDivider = styled(Divider)`
 `;
 
 const UserMenu = () => {
-
   const router = useRouter();
-  
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // Get user initials for avatar
+  const getInitials = () => {
+    if (user && user.firstName && user.lastName) {
+      return `${user.firstName.charAt(0)}${user.lastName.charAt(
+        0
+      )}`.toUpperCase();
+    }
+    return "U";
+  };
+
+  // Get full name
+  const getFullName = () => {
+    if (user && user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return "User";
+  };
+
+  // Get email
+  const getEmail = () => {
+    if (user && user.email) {
+      return user.email;
+    }
+    return "user@greentrack.com";
+  };
 
   const handleClickedProfile = () => {
-
     //call to the api to get user details
     router.push("/settings/user-details");
   };
-  
+
   const handleClickedLogout = () => {
-    
     //call to the api to logout user
     router.push("/logout");
   };
@@ -192,12 +221,10 @@ const UserMenu = () => {
   return (
     <DropdownContainer>
       <UserInfo>
-        <AvatarCircle>
-          <PersonOutlineIcon style={{ fontSize: 22 }} />
-        </AvatarCircle>
+        <AvatarCircle>{getInitials()}</AvatarCircle>
         <UserDetails>
-          <UserName>Krishnakant</UserName>
-          <UserEmail>user@greentrack.com</UserEmail>
+          <UserName>{getFullName()}</UserName>
+          <UserEmail>{getEmail()}</UserEmail>
         </UserDetails>
       </UserInfo>
 

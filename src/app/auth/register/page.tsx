@@ -12,14 +12,15 @@ import {
   Divider,
   MenuItem,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { EarthIllustration } from "@/components/illustrations";
 import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
-import { regionData } from "@/data/regionData";
 import { validateEmail, validatePswd } from "@/utils/validations";
 import { registerUser } from "@/services/authService";
+import { regionDataConstants } from "@/constants/regionDataConstants";
 
 const Register = () => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleFirstNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -76,7 +78,9 @@ const Register = () => {
     }
   };
 
-  const handleConfirmPswdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleConfirmPswdChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFields({ ...fields, confirmPswd: event.target.value });
     if (event.target.value === fields.pswd) {
       setConfirmPswdError("");
@@ -147,6 +151,7 @@ const Register = () => {
 
       // Success handling
       setSuccessMessage("OTP sent, Please check once");
+      setSnackbarOpen(true);
 
       if (response.data?.email) {
         localStorage.setItem("Email", response.data.email);
@@ -156,7 +161,6 @@ const Register = () => {
       } else {
         console.error("Email not found in response:", response.data);
       }
-
     } catch (error) {
       // Error handling
       console.error("Registration error:", error);
@@ -191,246 +195,267 @@ const Register = () => {
         gradientReverse={true}
         logoSize={55}
       >
+        {/* Error Message - Keep at top for errors */}
+        {apiError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
 
-          {/* Success Message */}
-          {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
-
-          {/* Error Message */}
-          {apiError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Alert>
-          )}
-
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <Box sx={{ display: "flex", gap: 1.5, mb: 1 }}>
-              <TextField
-                fullWidth
-                label="First Name"
-                name="firstName"
-                value={fields.firstName}
-                onChange={handleFirstNameChange}
-                required
-                autoComplete="given-name"
-                autoFocus
-                error={!!firstNameError}
-                helperText={firstNameError}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '56px',
-                  },
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Last Name"
-                name="lastName"
-                value={fields.lastName}
-                onChange={handleLastNameChange}
-                autoComplete="family-name"
-                sx={{
-                  '& .MuiInputBase-root': {
-                    height: '56px',
-                  },
-                }}
-              />
-            </Box>
-
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <Box sx={{ display: "flex", gap: 1.5, mb: 1 }}>
             <TextField
               fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={fields.email}
-              onChange={handleEmailChange}
+              label="First Name"
+              name="firstName"
+              value={fields.firstName}
+              onChange={handleFirstNameChange}
               required
-              autoComplete="email"
-              error={!!emailError}
-              helperText={emailError}
+              autoComplete="given-name"
+              autoFocus
+              error={!!firstNameError}
+              helperText={firstNameError}
               sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
+                "& .MuiInputBase-root": {
+                  height: "56px",
                 },
-                mt: 1,
-                mb: 1,
               }}
             />
-
             <TextField
               fullWidth
-              label="Password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={fields.pswd}
-              onChange={handlePswdChange}
-              required
-              autoComplete="new-password"
-              error={!!pswdError}
-              helperText={pswdError}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
+              label="Last Name"
+              name="lastName"
+              value={fields.lastName}
+              onChange={handleLastNameChange}
+              autoComplete="family-name"
               sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
+                "& .MuiInputBase-root": {
+                  height: "56px",
                 },
-                mt: 1,
-                mb: 1,
               }}
             />
+          </Box>
 
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              value={fields.confirmPswd}
-              onChange={handleConfirmPswdChange}
-              required
-              autoComplete="new-password"
-              error={!!confirmPswdError}
-              helperText={confirmPswdError}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle confirm password visibility"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
-                },
-                mt: 1,
-                mb: 1,
-              }}
-            />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={fields.email}
+            onChange={handleEmailChange}
+            required
+            autoComplete="email"
+            error={!!emailError}
+            helperText={emailError}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          />
 
-            <TextField
-              fullWidth
-              select
-              label="Region"
-              name="region"
-              required
-              error={!!regionError}
-              helperText={regionError}
-              value={fields.region}
-              onChange={handleRegionChange}
-              SelectProps={{
-                native: false,
-                MenuProps: {
-                  PaperProps: {
-                    sx: {
-                      bgcolor: 'background.paper',
-                      '& .MuiMenuItem-root': {
-                        px: 2,
-                        py: 1.5,
-                        borderRadius: 1,
-                        mx: 0.5,
-                        '&:hover': {
-                          bgcolor: 'background.hover',
-                        },
-                        '&.Mui-selected': {
-                          bgcolor: 'success.light',
-                          '&:hover': {
-                            bgcolor: 'background.hover',
-                          },
+          <TextField
+            fullWidth
+            label="Password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={fields.pswd}
+            onChange={handlePswdChange}
+            required
+            autoComplete="new-password"
+            error={!!pswdError}
+            helperText={pswdError}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Confirm Password"
+            name="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={fields.confirmPswd}
+            onChange={handleConfirmPswdChange}
+            required
+            autoComplete="new-password"
+            error={!!confirmPswdError}
+            helperText={confirmPswdError}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle confirm password visibility"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    edge="end"
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          />
+
+          <TextField
+            fullWidth
+            select
+            label="Region"
+            name="region"
+            required
+            error={!!regionError}
+            helperText={regionError}
+            value={fields.region}
+            onChange={handleRegionChange}
+            SelectProps={{
+              native: false,
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    bgcolor: "background.paper",
+                    "& .MuiMenuItem-root": {
+                      px: 2,
+                      py: 1.5,
+                      borderRadius: 1,
+                      mx: 0.5,
+                      "&:hover": {
+                        bgcolor: "background.hover",
+                      },
+                      "&.Mui-selected": {
+                        bgcolor: "success.light",
+                        "&:hover": {
+                          bgcolor: "background.hover",
                         },
                       },
                     },
                   },
                 },
-              }}
+              },
+            }}
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "56px",
+              },
+              mt: 1,
+              mb: 1,
+            }}
+          >
+            <MenuItem value="">
+              <em>Select your region</em>
+            </MenuItem>
+            {regionDataConstants.map((option) => (
+              <MenuItem key={option.code} value={option.name}>
+                {option.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <Box sx={{ display: "flex", gap: 1.5, mt: 1.5 }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleCancelClicked}
+              sx={{ py: 0.75 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
               sx={{
-                '& .MuiInputBase-root': {
-                  height: '56px',
+                bgcolor: "primary.main",
+                color: "#FFFFFF",
+                py: 0.75,
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                  color: "#FFFFFF",
                 },
-                mt: 1,
-                mb: 1,
               }}
             >
-              <MenuItem value="">
-                <em>Select your region</em>
-              </MenuItem>
-              {regionData.map((option) => (
-                <MenuItem key={option.code} value={option.name}>
-                  {option.name}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Box sx={{ display: "flex", gap: 1.5, mt: 1.5 }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={handleCancelClicked}
-                sx={{ py: 0.75 }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{
-                  bgcolor: "primary.main",
-                  color: "#FFFFFF",
-                  py: 0.75,
-                  "&:hover": {
-                    bgcolor: "primary.dark",
-                    color: "#FFFFFF",
-                  },
-                }}
-              >
-                Register
-              </Button>
-            </Box>
-
-            <Typography variant="body2" align="center" sx={{ mt: 1.5, color: "text.secondary", fontSize: '0.75rem' }}>
-              By creating an account, you agree to our{" "}
-              <Link
-                href="/auth/terms-and-conditions"
-                target="_blank"
-                sx={{ textDecoration: "none" }}
-              >
-                Terms and Conditions
-              </Link>
-            </Typography>
-
-            <Divider sx={{ my: 1.5 }}>OR</Divider>
-
-            <Typography variant="body2" align="center" sx={{ fontSize: '0.875rem' }}>
-              Already have an account?{" "}
-              <Link
-                href="/auth/login"
-                sx={{ textDecoration: "none", fontWeight: 600, color: "secondary.main" }}
-              >
-                Sign In
-              </Link>
-            </Typography>
+              Register
+            </Button>
           </Box>
+
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ mt: 1.5, color: "text.secondary", fontSize: "0.75rem" }}
+          >
+            By creating an account, you agree to our{" "}
+            <Link
+              href="/auth/terms-and-conditions"
+              target="_blank"
+              sx={{ textDecoration: "none" }}
+            >
+              Terms and Conditions
+            </Link>
+          </Typography>
+
+          <Divider sx={{ my: 1.5 }}>OR</Divider>
+
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ fontSize: "0.875rem" }}
+          >
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              sx={{
+                textDecoration: "none",
+                fontWeight: 600,
+                color: "secondary.main",
+              }}
+            >
+              Sign In
+            </Link>
+          </Typography>
+        </Box>
       </AuthPageLayout>
       <LoadingBackdrop open={isLoading} message="Creating your account..." />
+
+      {/* Success Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+          variant="filled"
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

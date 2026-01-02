@@ -1,15 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import styled from "styled-components";
-import { useRouter } from "next/navigation";
-import { createActivity } from "@/services/activityService";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import { TextField, MenuItem, Box } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TextField, Box, MenuItem } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
+import { getActivityById, updateActivity } from "@/services/activityService";
 import { MessageModal } from "@/model/MessageModal";
 import LoadingBackdrop from "@/components/auth/LoadingBackdrop";
 import { activitySubCategoryConstants } from "@/constants/activitySubCategoryConstants";
@@ -17,7 +16,7 @@ import { activityCategoryConstants } from "@/constants/activityCategoryConstants
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 
-// Styled Components
+// Reuse styled components from create page
 const PageContainer = styled.div`
   padding: 32px;
   max-width: 900px;
@@ -156,8 +155,8 @@ const Button = styled.button<{ $variant?: "primary" | "secondary" }>`
 `;
 
 const InfoBox = styled.div`
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  border-left: 4px solid #1565c0;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-left: 4px solid #e65100;
   padding: 16px;
   border-radius: 10px;
   margin-bottom: 24px;
@@ -165,14 +164,27 @@ const InfoBox = styled.div`
 
 const InfoText = styled.p`
   font-size: 14px;
-  color: #1565c0;
+  color: #e65100;
   margin: 0;
   line-height: 1.5;
 `;
 
-const CreateActivityPage: React.FC = () => {
+const EditActivityPage: React.FC = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const activityId = params?.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    category: "",
+    subType: "",
+    quantity: "",
+    unit: "",
+    description: "",
+    location: "",
+  });
+  const [activityDate, setActivityDate] = useState<Dayjs | null>(dayjs());
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState({
@@ -182,26 +194,28 @@ const CreateActivityPage: React.FC = () => {
 
   const userData = useSelector((state: RootState) => state.auth.user);
 
-  // Form state
-  const [formData, setFormData] = useState({
-    category: "",
-    subType: "",
-    quantity: "",
-    unit: "",
-    description: "",
-    location: "",
-  });
+  useEffect(() => {
+    if (activityId) {
+      loadActivity(activityId);
+    }
+  }, [activityId]);
 
-  const [activityDate, setActivityDate] = useState<Dayjs | null>(dayjs());
+  const loadActivity = async (activityId: string) => {
+    try {
+      setLoading(true);
+      const activityByIdResponse = await getActivityById(activityId);
+      setFormData({ ...activityByIdResponse.data });
+      setActivityDate(dayjs(activityByIdResponse.data.activityDate));
 
-  // Get filtered subcategories based on selected category
-  const filteredSubCategories = formData.category
-    ? activitySubCategoryConstants.filter(
-        (sub) => sub.category === formData.category
-      )
-    : [];
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    } catch (error) {
+      console.error("Error loading activity:", error);
+      setLoading(false);
+    }
+  };
 
-  // Handle input changes
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -220,7 +234,6 @@ const CreateActivityPage: React.FC = () => {
     }
   };
 
-  // Validate form
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -241,7 +254,6 @@ const CreateActivityPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -249,10 +261,12 @@ const CreateActivityPage: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
 
     try {
-      await createActivity(
+      console.log("Updating activity:", activityId, formData);
+      await updateActivity(
+        activityId,
         formData.category,
         formData.subType,
         formData.quantity,
@@ -265,52 +279,68 @@ const CreateActivityPage: React.FC = () => {
 
       // Success - show modal
       setModalMessage({
-        title: "Activity Created Successfully!",
+        title: "Activity Updated Successfully!",
         description:
-          "Your activity has been logged successfully. You will be redirected to the activities page.",
+          "Your activity has been updated successfully. You will be redirected to the activities page.",
       });
 
       setMessageModalOpen(true);
 
     } catch (error) {
-      console.error("Error creating activity:", error);
+      console.error("Error updating activity:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "An error occurred while creating your activity. Please try again.";
+          : "An error occurred while updating your activity. Please try again.";
       setModalMessage({
-        title: "Failed to Create Activity",
+        title: "Failed to Update Activity",
         description: errorMessage,
       });
       setMessageModalOpen(true);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const filteredSubCategories = formData.category
+    ? activitySubCategoryConstants.filter(
+        (sub) => sub.category === formData.category
+      )
+    : [];
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <LoadingBackdrop open={loading} message="Loading activity..." />
+      </PageContainer>
+    );
+  }
+
   return (
-    <PageContainer>
-      <Header>
-        <BackButton onClick={() => router.back()}>
-          <ArrowBackIcon />
-        </BackButton>
-        <Title>Add New Activity</Title>
-      </Header>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <PageContainer>
+        <Header>
+          <BackButton onClick={() => router.back()}>
+            <ArrowBackIcon />
+          </BackButton>
+          <Title>✏️ Edit Activity</Title>
+        </Header>
 
-      <FormCard>
-        <InfoBox>
-          <InfoText>
-            📝 Track your carbon footprint by logging your daily activities. All
-            fields marked with <strong>*</strong> are required.
-          </InfoText>
-        </InfoBox>
+        <FormCard>
+          <InfoBox>
+            <InfoText>
+              📝 Update your activity details below. All fields marked with *
+              are required.
+            </InfoText>
+          </InfoBox>
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <form onSubmit={handleSubmit}>
+            {/* Activity Type Section */}
             <FormSection>
               <SectionTitle>Activity Type</SectionTitle>
 
               <FormRow>
+                {/* Category Field */}
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
@@ -333,14 +363,10 @@ const CreateActivityPage: React.FC = () => {
                               py: 1.5,
                               borderRadius: 1,
                               mx: 0.5,
-                              "&:hover": {
-                                bgcolor: "#f0f7f4",
-                              },
+                              "&:hover": { bgcolor: "#f0f7f4" },
                               "&.Mui-selected": {
                                 bgcolor: "#e8f5e9",
-                                "&:hover": {
-                                  bgcolor: "#d0e8c5",
-                                },
+                                "&:hover": { bgcolor: "#d0e8c5" },
                               },
                             },
                           },
@@ -353,12 +379,8 @@ const CreateActivityPage: React.FC = () => {
                         borderRadius: "10px",
                       },
                       "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                          borderColor: "#a0c878",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#a0c878",
-                        },
+                        "&:hover fieldset": { borderColor: "#a0c878" },
+                        "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                       },
                     }}
                   >
@@ -373,6 +395,7 @@ const CreateActivityPage: React.FC = () => {
                   </TextField>
                 </Box>
 
+                {/* Sub-Type Field */}
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
@@ -401,14 +424,10 @@ const CreateActivityPage: React.FC = () => {
                               py: 1.5,
                               borderRadius: 1,
                               mx: 0.5,
-                              "&:hover": {
-                                bgcolor: "#f0f7f4",
-                              },
+                              "&:hover": { bgcolor: "#f0f7f4" },
                               "&.Mui-selected": {
                                 bgcolor: "#e8f5e9",
-                                "&:hover": {
-                                  bgcolor: "#d0e8c5",
-                                },
+                                "&:hover": { bgcolor: "#d0e8c5" },
                               },
                             },
                           },
@@ -421,12 +440,8 @@ const CreateActivityPage: React.FC = () => {
                         borderRadius: "10px",
                       },
                       "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                          borderColor: "#a0c878",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#a0c878",
-                        },
+                        "&:hover fieldset": { borderColor: "#a0c878" },
+                        "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                       },
                     }}
                   >
@@ -443,10 +458,12 @@ const CreateActivityPage: React.FC = () => {
               </FormRow>
             </FormSection>
 
+            {/* Measurement Details Section */}
             <FormSection>
               <SectionTitle>Measurement Details</SectionTitle>
 
               <FormRow>
+                {/* Quantity Field */}
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
@@ -459,27 +476,21 @@ const CreateActivityPage: React.FC = () => {
                     error={!!errors.quantity}
                     helperText={errors.quantity}
                     placeholder="e.g., 15.5"
-                    inputProps={{
-                      step: "0.01",
-                      min: "0",
-                    }}
+                    inputProps={{ step: "0.01", min: "0" }}
                     sx={{
                       "& .MuiInputBase-root": {
                         height: "56px",
                         borderRadius: "10px",
                       },
                       "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                          borderColor: "#a0c878",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#a0c878",
-                        },
+                        "&:hover fieldset": { borderColor: "#a0c878" },
+                        "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                       },
                     }}
                   />
                 </Box>
 
+                {/* Unit Field */}
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
@@ -488,25 +499,19 @@ const CreateActivityPage: React.FC = () => {
                     name="unit"
                     value={formData.unit}
                     onChange={handleChange}
-                    required
                     error={!!errors.unit}
                     helperText={errors.unit || "Max 15 characters"}
+                    required
                     placeholder="e.g., km, kWh, kg"
-                    inputProps={{
-                      maxLength: 15,
-                    }}
+                    inputProps={{ maxLength: 15 }}
                     sx={{
                       "& .MuiInputBase-root": {
                         height: "56px",
                         borderRadius: "10px",
                       },
                       "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                          borderColor: "#a0c878",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#a0c878",
-                        },
+                        "&:hover fieldset": { borderColor: "#a0c878" },
+                        "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                       },
                     }}
                   />
@@ -514,10 +519,12 @@ const CreateActivityPage: React.FC = () => {
               </FormRow>
             </FormSection>
 
+            {/* Additional Information Section */}
             <FormSection>
               <SectionTitle>Additional Information</SectionTitle>
 
               <FormRow>
+                {/* Activity Date Field */}
                 <Box sx={{ flex: 1 }}>
                   <DatePicker
                     label="Activity Date"
@@ -532,38 +539,23 @@ const CreateActivityPage: React.FC = () => {
                         sx: {
                           "& .MuiPickersOutlinedInput-root": {
                             "& fieldset": {
-                              borderColor: "#27667B", // default border
+                              borderColor: "#27667B",
                               borderRadius: 2,
                             },
-                            "&:hover fieldset": {
-                              borderColor: "#a0c878",
-                            },
+                            "&:hover fieldset": { borderColor: "#a0c878" },
                             "&.Mui-focused fieldset": {
                               borderColor: "#a0c878 !important",
                             },
                           },
                         },
                       },
-                      actionBar: {
-                        actions: [],
-                      },
+                      actionBar: { actions: [] },
                       desktopPaper: {
                         sx: {
                           backgroundColor: "#ffffff",
-                          "& .MuiPickersLayout-root": {
-                            backgroundColor: "#ffffff",
-                          },
-                          "& .MuiPickersCalendarHeader-root": {
-                            backgroundColor: "#ffffff",
-                          },
-                          "& .MuiDayCalendar-header": {
-                            backgroundColor: "#ffffff",
-                          },
                           "& .MuiPickersDay-root": {
                             backgroundColor: "#ffffff",
-                            "&:hover": {
-                              backgroundColor: "#f0f7f4",
-                            },
+                            "&:hover": { backgroundColor: "#f0f7f4" },
                             "&.Mui-selected": {
                               backgroundColor: "#a0c878 !important",
                               color: "#ffffff",
@@ -572,26 +564,13 @@ const CreateActivityPage: React.FC = () => {
                               },
                             },
                           },
-                          "& .MuiPickersYear-yearButton": {
-                            "&.Mui-selected": {
-                              backgroundColor: "#a0c878 !important",
-                              color: "#ffffff",
-                            },
-                          },
                         },
                       },
                       popper: {
-                        sx: {
-                          "& .MuiPaper-root": {
-                            width: "100%",
-                          },
-                        },
+                        sx: { "& .MuiPaper-root": { width: "100%" } },
                         placement: "bottom-start",
                         modifiers: [
-                          {
-                            name: "flip",
-                            enabled: false,
-                          },
+                          { name: "flip", enabled: false },
                           {
                             name: "sameWidth",
                             enabled: true,
@@ -613,6 +592,7 @@ const CreateActivityPage: React.FC = () => {
                   />
                 </Box>
 
+                {/* Location Field */}
                 <Box sx={{ flex: 1 }}>
                   <TextField
                     fullWidth
@@ -625,27 +605,22 @@ const CreateActivityPage: React.FC = () => {
                     error={!!errors.location}
                     helperText={errors.location || "Max 50 characters"}
                     placeholder="e.g., Bengaluru, KA"
-                    inputProps={{
-                      maxLength: 50,
-                    }}
+                    inputProps={{ maxLength: 50 }}
                     sx={{
                       "& .MuiInputBase-root": {
                         height: "56px",
                         borderRadius: "10px",
                       },
                       "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                          borderColor: "#a0c878",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#a0c878",
-                        },
+                        "&:hover fieldset": { borderColor: "#a0c878" },
+                        "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                       },
                     }}
                   />
                 </Box>
               </FormRow>
 
+              {/* Description Field */}
               <Box sx={{ mt: 2 }}>
                 <TextField
                   fullWidth
@@ -655,58 +630,48 @@ const CreateActivityPage: React.FC = () => {
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  error={!!errors.description}
-                  helperText={
-                    errors.description ||
-                    `${formData.description.length}/100 characters`
-                  }
                   placeholder="Add any notes about this activity..."
-                  inputProps={{
-                    maxLength: 100,
-                  }}
+                  inputProps={{ maxLength: 100 }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "10px",
-                      "&:hover fieldset": {
-                        borderColor: "#a0c878",
-                      },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#a0c878",
-                      },
+                      "&:hover fieldset": { borderColor: "#a0c878" },
+                      "&.Mui-focused fieldset": { borderColor: "#a0c878" },
                     },
                   }}
                 />
               </Box>
             </FormSection>
 
+            {/* Buttons */}
             <ButtonGroup>
               <Button type="button" onClick={() => router.back()}>
                 Cancel
               </Button>
               <Button type="submit" $variant="primary" disabled={loading}>
                 <SaveIcon />
-                {loading ? "Saving..." : "Save Activity"}
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
             </ButtonGroup>
           </form>
-        </LocalizationProvider>
-      </FormCard>
+        </FormCard>
 
-      <MessageModal
-        open={messageModalOpen}
-        handleClose={() => {
-          setMessageModalOpen(false);
-          if (modalMessage.title === "Activity Created Successfully!") {
-            router.push("/activity");
-          }
-        }}
-        title={modalMessage.title}
-        description={modalMessage.description}
-      />
+        <MessageModal
+          open={messageModalOpen}
+          handleClose={() => {
+            setMessageModalOpen(false);
+            if (modalMessage.title === "Activity Updated Successfully!") {
+              router.push("/activity");
+            }
+          }}
+          title={modalMessage.title}
+          description={modalMessage.description}
+        />
 
-      <LoadingBackdrop open={loading} message="Creating activity..." />
-    </PageContainer>
+        <LoadingBackdrop open={saving} message="Saving changes..." />
+      </PageContainer>
+    </LocalizationProvider>
   );
 };
 
-export default CreateActivityPage;
+export default EditActivityPage;

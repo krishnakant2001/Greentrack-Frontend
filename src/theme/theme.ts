@@ -138,7 +138,7 @@ const theme = createTheme({
         paper: {
           border: `1px solid ${colors.border.main}`,
           maxHeight: "190px",
-          backgroundColor: colors.text.light,
+          backgroundColor: colors.background.paper,
           borderRadius: "8px",
           overflowY: "auto",
           scrollbarWidth: "none", // Firefox
@@ -151,7 +151,7 @@ const theme = createTheme({
         paper: {
           padding: "12px",
           borderRadius: "12px",
-          backgroundColor: colors.text.light,
+          backgroundColor: colors.background.paper,
           minWidth: "500px",
         },
       },
@@ -159,7 +159,9 @@ const theme = createTheme({
     MuiDialogTitle: {
       styleOverrides: { root: { fontWeight: 600, color: colors.primary.dark } },
     },
-    MuiDialogContentText: { styleOverrides: { root: { color: colors.primary.dark } } },
+    MuiDialogContentText: {
+      styleOverrides: { root: { color: colors.primary.dark } },
+    },
     MuiDialogActions: { styleOverrides: { root: { gap: "8px" } } },
     MuiPopper: {
       styleOverrides: {
@@ -188,7 +190,7 @@ const theme = createTheme({
           borderRadius: "12px",
           border: `1.5px solid ${colors.border.main}`,
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
-          overflow: "hidden"
+          overflow: "hidden",
         },
       },
     },

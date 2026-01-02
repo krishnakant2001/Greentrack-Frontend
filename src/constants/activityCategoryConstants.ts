@@ -1,4 +1,4 @@
-export const activityCategoryData = [
+export const activityCategoryConstants = [
   {
     code: "TRAVEL",
     name: "Travel",

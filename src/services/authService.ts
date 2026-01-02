@@ -1,7 +1,18 @@
+import {
+  buildApiUrl,
+  API_ENDPOINTS,
+  getCommonHeaders,
+} from "@/configs/apiConfig";
+
 interface LoginResponse {
   data?: {
     token: string;
     refreshToken: string;
+    user?: {
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
   };
   message?: string;
 }
@@ -13,12 +24,13 @@ interface RegistrationOtpResponse {
   };
   message?: string;
 }
-export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-  const response = await fetch("http://localhost:8080/api/auth/login", {
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<LoginResponse> => {
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.LOGIN), {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: getCommonHeaders(),
     body: JSON.stringify({
       email: email,
       password: password,
@@ -34,9 +46,14 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   return data;
 };
 
-export const logoutUser = () => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
+export const logoutUser = async (token: string): Promise<void> => {
+  await fetch(buildApiUrl(API_ENDPOINTS.AUTH.LOGOUT), {
+    method: "POST",
+    headers: {
+      ...getCommonHeaders(),
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const registerUser = async (
@@ -46,22 +63,17 @@ export const registerUser = async (
   password: string,
   region: string
 ): Promise<RegistrationOtpResponse> => {
-  const response = await fetch(
-    "http://localhost:8080/api/auth/initiate-registration",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password,
-        region,
-      }),
-    }
-  );
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.REGISTER), {
+    method: "POST",
+    headers: getCommonHeaders(),
+    body: JSON.stringify({
+      firstName,
+      lastName,
+      email,
+      password,
+      region,
+    }),
+  });
 
   const data = await response.json();
 

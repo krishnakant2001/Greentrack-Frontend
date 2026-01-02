@@ -99,7 +99,6 @@ export const Paragraph = styled.p`
   text-align: justify;
 `;
 
-
 //logout page styles
 export const ContentSection = styled.div`
   display: flex;

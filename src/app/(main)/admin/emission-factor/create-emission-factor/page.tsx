@@ -21,7 +21,7 @@ import {
 } from "../../../main.styles";
 import React, { useState } from "react";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
-import { regionData } from "@/data/regionData";
+import { regionData } from "@/constants/regionDataConstants";
 import { activityCategoryData } from "@/data/activityCategoryData";
 import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 import DecimalField from "@/components/reusableComponents/DecimalField";
