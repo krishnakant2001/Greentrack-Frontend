@@ -23,6 +23,7 @@ import { validateEmail, validatePswd } from "@/utils/validations";
 import { setJwtToken, setUserInfo } from "@/store/features/slices/authSlice";
 import { FcGoogle } from "react-icons/fc";
 import { getUserProfileDetails } from "@/services/userDetailsService";
+import { API_BASE_URL, API_ENDPOINTS } from "@/configs/apiConfig";
 
 const Login = () => {
   const router = useRouter();
@@ -39,7 +40,7 @@ const Login = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = `${API_BASE_URL}${API_ENDPOINTS.OAUTH.GOOGLE_LOGIN}`;
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {

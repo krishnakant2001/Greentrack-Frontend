@@ -1,5 +1,5 @@
 // Base API URL
-export const API_BASE_URL = "https://greentrack-backend-production.up.railway.app";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -46,6 +46,10 @@ export const API_ENDPOINTS = {
   // Admin endpoints
   ADMIN: {
     EMISSION_FACTOR: "/api/admin/emission-factor",
+  },
+
+  OAUTH: {
+    GOOGLE_LOGIN: "/oauth2/authorization/google",
   },
 };
 
