@@ -21,7 +21,12 @@ const Logout = () => {
   
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowRedirectMessage(true);
+      try {
+        setShowRedirectMessage(true);
+      }
+      catch (error) {
+        setSuccessMessage("An error occurred during logout. Please try again." + error);
+      }
     }, 3000);
 
     const redirectTimer = setTimeout(() => {

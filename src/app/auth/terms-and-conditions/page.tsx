@@ -31,7 +31,7 @@ const TermsAndConditions = () => {
           <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
             <GreenTrackLogo size={80} />
           </Box>
-          
+
           <Typography
             variant="h4"
             component="h1"
@@ -54,7 +54,11 @@ const TermsAndConditions = () => {
               >
                 1. Acceptance of Terms
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 Welcome to GreenTrack, the Carbon Footprint & Sustainability
                 Tracker Application. By accessing or using our services, you
                 agree to comply with these Terms and Conditions, all applicable
@@ -71,7 +75,11 @@ const TermsAndConditions = () => {
               >
                 2. User Responsibilities
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 As a user of GreenTrack, you are responsible for providing
                 accurate and truthful information during registration and when
                 logging your activities, such as travel, energy usage, and
@@ -90,7 +98,11 @@ const TermsAndConditions = () => {
               >
                 3. Data Usage and Privacy
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 All user activities are used to calculate estimated carbon
                 emissions, which help provide personalized insights and
                 recommendations to reduce your carbon footprint. We process and
@@ -108,7 +120,11 @@ const TermsAndConditions = () => {
               >
                 4. Intellectual Property
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 All intellectual property rights in the GreenTrack platform,
                 including software, logos, designs, and data models, remain the
                 property of GreenTrack. You are granted a limited, non-exclusive
@@ -125,12 +141,17 @@ const TermsAndConditions = () => {
               >
                 5. Disclaimers
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 Please note that the CO₂e estimations provided by GreenTrack are
                 based on emission factors and models and should be treated as
                 estimates. We do not guarantee absolute accuracy of the results
                 or suitability for any regulatory compliance. The application is
-                provided "as is" without any warranties, express or implied.
+                provided &quot;as is&quot; without any warranties, express or
+                implied.
               </Typography>
             </Box>
 
@@ -142,7 +163,11 @@ const TermsAndConditions = () => {
               >
                 6. Limitation of Liability
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 In no event shall GreenTrack be liable for any indirect,
                 incidental, special, or consequential damages arising from your
                 use of the service. You agree to use the platform at your own
@@ -158,7 +183,11 @@ const TermsAndConditions = () => {
               >
                 7. Changes to Terms
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 We may update these Terms and Conditions from time to time, and
                 any changes will be published on this Terms page. Updated terms
                 take effect immediately upon posting, and your continued use of
@@ -174,7 +203,11 @@ const TermsAndConditions = () => {
               >
                 8. Governing Law
               </Typography>
-              <Typography variant="body1" color="text.primary" sx={{ lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                color="text.primary"
+                sx={{ lineHeight: 1.8 }}
+              >
                 These terms are governed by the laws of the country in which
                 GreenTrack operates, and any disputes will be subject to the
                 exclusive jurisdiction of the courts in that region.

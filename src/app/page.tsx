@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Box, Typography, Button, Grid, Card, CardContent, Paper } from "@mui/material";
+import { Box, Typography, Button, Card, CardContent, Paper } from "@mui/material";
 import { useRouter } from "next/navigation";
 import {
   TreeIllustration,

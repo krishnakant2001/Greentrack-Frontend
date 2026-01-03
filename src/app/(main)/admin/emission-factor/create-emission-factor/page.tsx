@@ -21,13 +21,13 @@ import {
 } from "../../../main.styles";
 import React, { useState } from "react";
 import InputSelectField from "@/components/reusableComponents/InputSelectField";
-import { regionData } from "@/constants/regionDataConstants";
-import { activityCategoryData } from "@/data/activityCategoryData";
-import { activitySubCategoryData } from "@/data/activitySubCategoryData";
 import DecimalField from "@/components/reusableComponents/DecimalField";
 import { MessageModal } from "@/model/MessageModal";
 import { useRouter } from "next/navigation";
 import { createEmissionFactor } from "@/services/emissionFactorService";
+import { activityCategoryConstants } from "@/constants/activityCategoryConstants";
+import { regionDataConstants } from "@/constants/regionDataConstants";
+import { activitySubCategoryConstants } from "@/constants/activitySubCategoryConstants";
 
 const CreateEmissionFactor = () => {
   const [fields, setFields] = useState({
@@ -56,12 +56,12 @@ const CreateEmissionFactor = () => {
 
   const subCatergoryList = () => {
     if (fields.activityCategory) {
-      return activitySubCategoryData
+      return activitySubCategoryConstants
         .filter((item) => item.category === fields.activityCategory)
         .map((item) => ({ code: item.code, name: item.name }));
     }
 
-    return activitySubCategoryData.map((item) => ({
+    return activitySubCategoryConstants.map((item) => ({
       code: item.code,
       name: item.name,
     }));
@@ -258,7 +258,7 @@ const CreateEmissionFactor = () => {
               onChange={handleSelectRegion}
               fullWidth
               error={regionError}
-              options={regionData}
+              options={regionDataConstants}
             />
             <SubSection>
               <InputSelectField
@@ -269,7 +269,7 @@ const CreateEmissionFactor = () => {
                 onChange={handleSelectCategory}
                 fullWidth
                 error={categoryError}
-                options={activityCategoryData}
+                options={activityCategoryConstants}
               />
               <InputSelectField
                 required

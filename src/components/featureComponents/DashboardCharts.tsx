@@ -156,7 +156,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, size = 200 }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = size / 2;
   const innerRadius = radius * 0.6; // For donut chart
-  const circumference = 2 * Math.PI * radius;
+  // const circumference = 2 * Math.PI * radius;
 
   let currentAngle = 0;
 
@@ -248,7 +248,7 @@ export const PieChart: React.FC<PieChartProps> = ({ data, size = 200 }) => {
 };
 
 // BarChart Component
-export const BarChart: React.FC<BarChartProps> = ({ data, height = 40 }) => {
+export const BarChart: React.FC<BarChartProps> = ({ data }) => {
   const maxValue = Math.max(...data.map((item) => item.value));
 
   return (
