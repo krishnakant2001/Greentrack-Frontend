@@ -7,8 +7,13 @@ import { SuccessCheckmarkIllustration } from "@/components/illustrations";
 import { verifyOtpAndRegisterUser } from "@/services/verifyOtpService";
 import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
 import { resendOtp } from "@/services/resendOtpService";
+import { useDispatch } from "react-redux";
+import { setJwtToken, setUserInfo } from "@/store/features/slices/authSlice";
+import { getUserProfileDetails } from "@/services/userDetailsService";
 
 const OtpValidation = () => {
+  const dispatch = useDispatch();
+  
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
   const [isResendEnabled, setIsResendEnabled] = useState(false);
@@ -38,6 +43,7 @@ const OtpValidation = () => {
   }, [timer]);
 
   const handleOtpChange = (index: number, value: string) => {
+    setApiError("");
     // Only allow digits
     if (value && !/^\d$/.test(value)) return;
 
@@ -104,6 +110,14 @@ const OtpValidation = () => {
       const response = await verifyOtpAndRegisterUser(email, otpValue);
       console.log("Verification and Registration Done:", response);
       setSuccessMessage("User registration successfull");
+
+      // Store token and user info in Redux
+      if (response?.data) {
+        dispatch(setJwtToken(response.data.token));
+        getUserProfileDetails(response.data.token).then((userData) => {
+          dispatch(setUserInfo(userData.data));
+        });
+      }
 
       setTimeout(() => {
         router.push("/dashboard");

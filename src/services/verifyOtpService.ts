@@ -4,10 +4,23 @@ import {
   getCommonHeaders,
 } from "@/configs/apiConfig";
 
+interface RegisterationResponse {
+  data?: {
+    token: string;
+    refreshToken: string;
+    user?: {
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  };
+  message?: string;
+}
+
 export const verifyOtpAndRegisterUser = async (
   email: string,
   otp: string
-): Promise<{ message: string }> => {
+): Promise<RegisterationResponse> => {
   const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.VERIFY_OTP), {
     method: "POST",
     headers: getCommonHeaders(),
