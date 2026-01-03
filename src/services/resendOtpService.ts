@@ -4,16 +4,14 @@ import {
   getCommonHeaders,
 } from "@/configs/apiConfig";
 
-export const verifyOtpAndRegisterUser = async (
-  email: string,
-  otp: string
+export const resendOtp = async (
+  email: string
 ): Promise<{ message: string }> => {
-  const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.VERIFY_OTP), {
+  const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.RESEND_OTP), {
     method: "POST",
     headers: getCommonHeaders(),
     body: JSON.stringify({
-      email,
-      otp,
+      email
     }),
   });
 

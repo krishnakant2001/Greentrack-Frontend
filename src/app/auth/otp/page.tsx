@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { SuccessCheckmarkIllustration } from "@/components/illustrations";
 import { verifyOtpAndRegisterUser } from "@/services/verifyOtpService";
 import { AuthPageLayout, LoadingBackdrop } from "@/components/auth";
+import { resendOtp } from "@/services/resendOtpService";
 
 const OtpValidation = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -124,12 +125,26 @@ const OtpValidation = () => {
     }
   };
 
-  const handleResendClicked = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleResendClicked = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (!isResendEnabled) return;
     console.log("Resending OTP...");
 
     setOtp(["", "", "", "", "", ""]);
+
+    const email = localStorage.getItem("Email");
+
+    if (!email) {
+      console.error("Email not found for resending OTP");
+      router.push("/auth/register");
+      return;
+    }
+
+    console.log(`OTP resent to ${email}`);
+
+    const resendOtpResponse = await resendOtp(email);
+    console.log("Resend OTP Response:", resendOtpResponse.message);
+    
     setTimer(60);
     setIsResendEnabled(false);
     inputRefs.current[0]?.focus();
