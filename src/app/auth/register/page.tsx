@@ -369,7 +369,7 @@ const Register = () => {
               <em>Select your region</em>
             </MenuItem>
             {regionDataConstants.map((option) => (
-              <MenuItem key={option.code} value={option.name}>
+              <MenuItem key={option.code} value={option.code}>
                 {option.name}
               </MenuItem>
             ))}
