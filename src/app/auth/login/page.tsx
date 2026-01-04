@@ -105,10 +105,7 @@ const Login = () => {
             dispatch(setUserInfo(userData.data));
           });
         }
-        // Redirect to dashboard or home page after a short delay
-        setTimeout(() => {
-          router.push("/dashboard"); // Adjust the route as needed
-        }, 1500);
+        router.push("/dashboard");
       } catch (error: unknown) {
         // Error handling
         console.error("Login error:", error);

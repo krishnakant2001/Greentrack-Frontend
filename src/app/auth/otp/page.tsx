@@ -121,7 +121,7 @@ const OtpValidation = () => {
 
       setTimeout(() => {
         router.push("/dashboard");
-      }, 3000);
+      }, 1000);
     } catch (error) {
       console.error("Registration error:", error);
 
